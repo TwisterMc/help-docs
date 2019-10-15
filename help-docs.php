@@ -98,7 +98,6 @@ function help_docs_admin_page() {
 		// WP_Query arguments
 		$args = array(
 			'post_type'      => 'help_docs',
-			'post_status'    => 'private',
 			'posts_per_page' => '-1',
 		);
 		// The Query
