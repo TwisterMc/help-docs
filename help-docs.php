@@ -48,7 +48,7 @@ function custom_post_type() {
 		'supports'            => array( 'title', 'editor', 'page-attributes' ),
 		'public'              => false,
 		'show_ui'             => true,
-		'show_in_menu'        => false, // hides it in the WP admin
+		'show_in_menu'        => true, // hides it in the WP admin
 		'menu_position'       => 5,
 		'show_in_admin_bar'   => true,
 		'show_in_nav_menus'   => true,
@@ -108,8 +108,9 @@ function help_docs_admin_page() {
 		echo '<p><a href="/wp-admin/post-new.php?post_type=help_docs" class="button button-large">New Help Doc</a></p>';
 		// WP_Query arguments
 		$args = array(
-			'post_type'   => array( 'help_docs' ),
-			'post_status' => array( 'private' ),
+			'post_type'      => 'help_docs',
+			'post_status'    => 'private',
+			'posts_per_page' => '-1',
 		);
 		// The Query
 		$query = new WP_Query( $args );
