@@ -65,17 +65,6 @@ function custom_post_type() {
 add_action( 'init', 'custom_post_type', 0 );
 
 /**
- * Force our posts private.
- */
-function force_type_private( $post ) {
-	if ( 'help_docs' === $post['post_type'] ) {
-		$post['post_status'] = 'private';
-	}
-	return $post;
-}
-add_filter( 'wp_insert_post_data', 'force_type_private' );
-
-/**
  * Add Admin Menus
  */
 add_action( 'admin_menu', 'help_docs_admin_menu' );
