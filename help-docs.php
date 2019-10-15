@@ -48,7 +48,7 @@ function custom_post_type() {
 		'supports'            => array( 'title', 'editor', 'page-attributes' ),
 		'public'              => false,
 		'show_ui'             => true,
-		'show_in_menu'        => true, // hides it in the WP admin
+		'show_in_menu'        => false, // hides it in the WP admin
 		'menu_position'       => 5,
 		'show_in_admin_bar'   => true,
 		'show_in_nav_menus'   => true,
