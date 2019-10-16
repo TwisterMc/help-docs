@@ -85,12 +85,13 @@ class Help_Docs {
 	 */
 	public static function help_docs_admin_page() {
 		?>
+		<style type="text/css">
+			.child { margin-left: 10px; }
+			.wrap { padding: 10px; }
+		</style>
 		<div class="wrap">
 			<h2>Welcome To Help Docs</h2>
 			<hr/>
-			<style type="text/css">
-				.child { margin-left: 10px; }
-			</style>
 			<?php
 			echo '<p><a href="/wp-admin/post-new.php?post_type=help_docs" class="button button-large">New Help Doc</a></p>';
 			echo '<ul class="help_pages">';
@@ -123,6 +124,10 @@ class Help_Docs {
 	 */
 	public static function help_docs_admin_page_info() {
 		?>
+		<style type="text/css">
+			.child { margin-left: 10px; }
+			.wrap { padding: 10px; }
+		</style>
 		<div class="wrap">
 			<h2>Help Docs</h2>
 			<hr/>
