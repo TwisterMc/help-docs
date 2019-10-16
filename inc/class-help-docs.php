@@ -105,7 +105,7 @@ class Help_Docs {
 					if ( get_the_title() !== 'Auto Draft' ) {
 						echo '<li><a href="/wp-admin/admin.php?page=help-docs-info.php&id=' . get_the_ID() . '">';
 						echo esc_html( get_the_title() );
-						echo '</a></br>';
+						echo '</a>';
 						echo '</li>';
 					}
 				}
