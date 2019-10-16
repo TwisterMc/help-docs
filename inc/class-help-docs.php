@@ -1,6 +1,13 @@
 <?php
 
 /**
+ * Exit early if directly accessed via URL.
+ */
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
+/**
  * Help_Docs Class
  * Controls all the things.
  */

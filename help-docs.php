@@ -9,6 +9,13 @@
  */
 
 /**
+ * Exit early if directly accessed via URL.
+ */
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
+/**
  * Include the Class
  */
 require plugin_dir_path( __FILE__ ) . 'inc/class-help-docs.php';
