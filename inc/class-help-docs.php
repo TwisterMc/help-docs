@@ -97,17 +97,23 @@ class Help_Docs {
 			// The Query
 			$query = new WP_Query( $args );
 
+			$message = $query;
+			if ( is_array($message) || is_object($message) ) {
+				error_log( print_r($message, true) );
+			} else {
+				error_log( $message );
+			}
+
 			// The Loop
 			if ( $query->have_posts() ) {
 				echo '<ul>';
 				while ( $query->have_posts() ) {
 					$query->the_post();
-					if ( get_the_title() !== 'Auto Draft' ) {
-						echo '<li><a href="/wp-admin/admin.php?page=help-docs-info.php&id=' . get_the_ID() . '">';
-						echo esc_html( get_the_title() );
-						echo '</a>';
-						echo '</li>';
-					}
+					echo '<li><a href="/wp-admin/admin.php?page=help-docs-info.php&id=' . get_the_ID() . '">';
+					echo esc_html( get_the_title() );
+					echo '</a>';
+					echo '</li>';
+
 				}
 				echo '</ul>';
 			} else {
