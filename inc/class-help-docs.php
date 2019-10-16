@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * Help_Docs Class
+ * Controls all the things.
+ */
 class Help_Docs {
 
 	/**
@@ -43,7 +47,7 @@ class Help_Docs {
 			'supports'            => array( 'title', 'editor', 'page-attributes' ),
 			'public'              => false,
 			'show_ui'             => true,
-			'show_in_menu'        => false, // hides it in the WP admin
+			'show_in_menu'        => false, // hides it in the WP admin.
 			'menu_position'       => 5,
 			'show_in_admin_bar'   => true,
 			'show_in_nav_menus'   => true,
@@ -52,7 +56,7 @@ class Help_Docs {
 			'exclude_from_search' => true,
 			'publicly_queryable'  => false,
 			'capability_type'     => 'page',
-			'show_in_rest'        => false, // also disables guteneberg
+			'show_in_rest'        => false, // also disables guteneberg.
 		);
 		register_post_type( 'help_docs', $args );
 	}
@@ -106,7 +110,7 @@ class Help_Docs {
 
 				foreach ( $pages as $page ) {
 
-					// TODO:  Check for no page
+					// TODO:  Check for no page.
 
 					$parent_class = '';
 					if ( 0 !== $page->post_parent ) {

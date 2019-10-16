@@ -1,12 +1,12 @@
 <?php
-/*
-Plugin Name: Help Docs
-Description:
-Author: Thomas McMahon
-Version: 0.1
-Author URI: https://www.twistermc.com
-Text Domain: help_docs
-*/
+/**
+ * Plugin Name: Help Docs
+ * Description:
+ * Author: Thomas McMahon
+ * Version: 0.1
+ * Author URI: https://www.twistermc.com
+ * Text Domain: help_docs
+ */
 
 /**
  * Include the Class
