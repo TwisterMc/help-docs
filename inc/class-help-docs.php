@@ -87,43 +87,35 @@ class Help_Docs {
 		?>
 		<div class="wrap">
 			<h2>Welcome To Help Docs</h2>
+			<hr/>
+			<style type="text/css">
+				.child { margin-left: 10px; }
+			</style>
 			<?php
 			echo '<p><a href="/wp-admin/post-new.php?post_type=help_docs" class="button button-large">New Help Doc</a></p>';
-			// WP_Query arguments
-			$args = array(
-				'post_type'      => 'help_docs',
-				'posts_per_page' => '-1',
-			);
-			// The Query
-			$query = new WP_Query( $args );
+			echo '<ul class="help_pages">';
 
-			$message = $query;
-			if ( is_array($message) || is_object($message) ) {
-				error_log( print_r($message, true) );
-			} else {
-				error_log( $message );
-			}
+				$args  = array(
+					'sort_order'   => 'asc',
+					'sort_column'  => 'post_title',
+					'hierarchical' => 1,
+					'post_type'    => 'help_docs',
+				);
+				$pages = get_pages( $args );
 
-			// The Loop
-			if ( $query->have_posts() ) {
-				echo '<ul>';
-				while ( $query->have_posts() ) {
-					$query->the_post();
-					echo '<li><a href="/wp-admin/admin.php?page=help-docs-info.php&id=' . get_the_ID() . '">';
-					echo esc_html( get_the_title() );
-					echo '</a>';
-					echo '</li>';
+				foreach ( $pages as $page ) {
 
+					// TODO:  Check for no page
+
+					$parent_class = '';
+					if ( 0 !== $page->post_parent ) {
+						$parent_class = 'child';
+					}
+					?>
+					<li class="<?php echo $parent_class; ?>"><a href="/wp-admin/admin.php?page=help-docs-info.php&id=<?php echo $page->ID; ?>"><?php echo $page->post_title; ?></a></li>
+					<?php
 				}
 				echo '</ul>';
-			} else {
-				echo '<p>' . __( 'There are no help documents yet.' ) . '</p>';
-			}
-			/* Restore original Post Data */
-			wp_reset_postdata();
-			?>
-		</div>
-		<?php
 	}
 
 	/**
@@ -132,7 +124,8 @@ class Help_Docs {
 	public static function help_docs_admin_page_info() {
 		?>
 		<div class="wrap">
-			<h2>Welcome To The Details (my-help)</h2>
+			<h2>Help Docs</h2>
+			<hr/>
 			<?php
 			$variable = $_GET['id'];
 			echo '<p><a href="/wp-admin/admin.php?page=help-docs.php" class="button button-large">' . __( '< Back' ) . '</a> <a href="/wp-admin/post.php?post=' . esc_html( $variable ) . '&action=edit" class="button button-large">' . __( 'Edit' ) . '</a> <a href="/wp-admin/post-new.php?post_type=help_docs" class="button button-large">' . __( 'New Documentation Post' ) . '</a></p>';
