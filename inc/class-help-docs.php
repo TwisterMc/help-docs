@@ -93,7 +93,7 @@ class Help_Docs {
 			<h2>Welcome To Help Docs</h2>
 			<hr/>
 			<?php
-			echo '<p><a href="/wp-admin/post-new.php?post_type=help_docs" class="button button-large">New Help Doc</a></p>';
+			echo '<p><a href="/wp-admin/post-new.php?post_type=help_docs" class="button button-large">' . __( 'New Help Doc' ) . '</a></p>';
 			echo '<ul class="help_pages">';
 
 				$args  = array(
@@ -133,7 +133,7 @@ class Help_Docs {
 			<hr/>
 			<?php
 			$variable = $_GET['id'];
-			echo '<p><a href="/wp-admin/admin.php?page=help-docs.php" class="button button-large">' . __( '< Back' ) . '</a> <a href="/wp-admin/post.php?post=' . esc_html( $variable ) . '&action=edit" class="button button-large">' . __( 'Edit' ) . '</a> <a href="/wp-admin/post-new.php?post_type=help_docs" class="button button-large">' . __( 'New Documentation Post' ) . '</a></p>';
+			echo '<p><a href="/wp-admin/admin.php?page=help-docs.php" class="button button-large">' . __( '< Back' ) . '</a> <a href="/wp-admin/post.php?post=' . esc_html( $variable ) . '&action=edit" class="button button-large">' . __( 'Edit' ) . '</a> <a href="/wp-admin/post-new.php?post_type=help_docs" class="button button-large">' . __( 'New Help Doc' ) . '</a></p>';
 			echo '<div class="entry-content">';
 			echo '<h1>' . esc_html( get_the_title( $variable ) ) . '</h1>';
 			echo wpautop( get_post_field( 'post_content', $variable ) );
