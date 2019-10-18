@@ -105,7 +105,7 @@ class Help_Docs {
 			<h2>Welcome To Help Docs</h2>
 			<hr/>
 			<?php
-			echo '<p><a href="/wp-admin/post-new.php?post_type=help_docs" class="button button-large">' . __( 'New Help Doc' ) . '</a></p>';
+			echo '<p><a href="/wp-admin/post-new.php?post_type=help_docs" class="button button-large">' . esc_html( __( 'New Help Doc' ) ) . '</a></p>';
 			echo '<ul class="help_pages">';
 
 				$args  = array(
@@ -125,7 +125,7 @@ class Help_Docs {
 						$parent_class = 'child';
 					}
 					?>
-					<li class="<?php echo $parent_class; ?>"><a href="/wp-admin/admin.php?page=help-docs-info.php&id=<?php echo $page->ID; ?>"><?php echo $page->post_title; ?></a></li>
+					<li class="<?php echo esc_attr( $parent_class ); ?>"><a href="/wp-admin/admin.php?page=help-docs-info.php&id=<?php echo esc_attr( $page->ID ); ?>"><?php echo esc_attr( $page->post_title ); ?></a></li>
 					<?php
 				}
 				echo '</ul>';
@@ -145,7 +145,7 @@ class Help_Docs {
 			<hr/>
 			<?php
 			$variable = $_GET['id'];
-			echo '<p><a href="/wp-admin/admin.php?page=help-docs.php" class="button button-large">' . __( '< Back' ) . '</a> <a href="/wp-admin/post.php?post=' . esc_html( $variable ) . '&action=edit" class="button button-large">' . __( 'Edit' ) . '</a> <a href="/wp-admin/post-new.php?post_type=help_docs" class="button button-large">' . __( 'New Help Doc' ) . '</a></p>';
+			echo '<p><a href="/wp-admin/admin.php?page=help-docs.php" class="button button-large">' . esc_html( __( '< Back' ) ) . '</a> <a href="/wp-admin/post.php?post=' . esc_html( $variable ) . '&action=edit" class="button button-large">' . esc_html( __( 'Edit' ) ) . '</a> <a href="/wp-admin/post-new.php?post_type=help_docs" class="button button-large">' . esc_html( __( 'New Help Doc' ) ) . '</a></p>';
 			echo '<div class="entry-content">';
 			echo '<h1>' . esc_html( get_the_title( $variable ) ) . '</h1>';
 			echo wpautop( get_post_field( 'post_content', $variable ) );
