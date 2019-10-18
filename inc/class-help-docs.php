@@ -1,8 +1,9 @@
 <?php
-
 /**
+ * @package WordPress
  * Exit early if directly accessed via URL.
  */
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
