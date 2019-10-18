@@ -1,6 +1,7 @@
 <?php
 /**
  * @wordpress-plugin
+ * @package WordPress
  * Plugin Name: Help Docs
  * Description: Adds a custom post type that is visible only in the admin.
  * Author: Thomas McMahon
