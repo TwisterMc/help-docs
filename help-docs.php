@@ -17,8 +17,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-wp_enqueue_style( 'help-docs-style', plugins_url() . '/help-docs/style/style.css', array(), '1.0' );
-
 /**
  * Include the Class
  */
@@ -53,3 +51,11 @@ function help_docs_admin_page() {
 function help_docs_admin_page_info() {
 	Help_Docs::help_docs_admin_page_info();
 }
+
+/**
+ * Add Styles
+ */
+function help_docs_add_style() {
+	wp_enqueue_style( 'help-docs-style', plugins_url() . '/help-docs/style/style.css', array(), '1.0' );
+}
+add_action( 'admin_enqueue_scripts', 'help_docs_add_style' );
