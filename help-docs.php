@@ -17,6 +17,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+wp_enqueue_style( 'help-docs-style', plugins_url() . '/help-docs/style/style.css', array(), '1.0' );
+
 /**
  * Include the Class
  */

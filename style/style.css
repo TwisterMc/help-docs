@@ -1,0 +1,25 @@
+/* ---------------------------------------------------------------------
+Help Docs Styles
+------------------------------------------------------------------------ */
+
+.help-docs-wrapper { 
+    padding: 1em;
+    margin-right: 1em; 
+}
+
+.help-docs-wrapper .child { 
+    margin-left: 1em; 
+}
+
+.help-docs-wrapper li,
+.help-docs-wrapper ul {
+    margin-bottom: 1em;
+}
+
+.help-docs-wrapper li { 
+    list-style: disc;
+}
+
+.help-docs-wrapper blockquote {
+    font-style: italic;
+}

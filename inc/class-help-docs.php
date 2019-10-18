@@ -97,11 +97,7 @@ class Help_Docs {
 	 */
 	public static function help_docs_admin_page() {
 		?>
-		<style type="text/css">
-			.child { margin-left: 10px; }
-			.wrap { padding: 10px; }
-		</style>
-		<div class="wrap">
+		<div class="help-docs-wrapper">
 			<h2>Welcome To Help Docs</h2>
 			<hr/>
 			<?php
@@ -138,11 +134,7 @@ class Help_Docs {
 	 */
 	public static function help_docs_admin_page_info() {
 		?>
-		<style type="text/css">
-			.child { margin-left: 10px; }
-			.wrap { padding: 10px; }
-		</style>
-		<div class="wrap">
+		<div class="help-docs-wrapper">
 			<h2>Help Docs</h2>
 			<hr/>
 			<?php
