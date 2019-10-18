@@ -5,7 +5,7 @@
  * Plugin Name: Help Docs
  * Description: Adds a custom post type that is visible only in the admin.
  * Author: Thomas McMahon
- * Version: 0.1
+ * Version: 0.11
  * Author URI: https://www.twistermc.com
  * Text Domain: help_docs
  */

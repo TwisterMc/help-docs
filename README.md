@@ -1,6 +1,12 @@
 # help-docs
 Creating Internal Help Documents in WordPress
 
+**Oct 17, 2019**
+
+* Code cleanup. Trying to be better aligned with WordPress standards.
+* Checked to see if we have a topic ID instead of assuming we do.
+* Move the edit button.
+
 **Oct 15, 2019**
 
 * Reorganizing files
