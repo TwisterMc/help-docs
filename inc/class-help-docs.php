@@ -96,8 +96,16 @@ class Help_Docs {
 			'Settings',
 			'Settings',
 			'manage_options',
-			'help-docs-settings',
+			'help-docs-settings.php',
 			'help_docs_settings'
+		);
+		add_submenu_page(
+			'help-docs-info_page',
+			'Help Docs Details',
+			'Help Docs Details',
+			'manage_options',
+			'help-docs-info.php',
+			'help_docs_admin_page_info'
 		);
 	}
 
@@ -145,7 +153,7 @@ class Help_Docs {
 	public static function help_docs_admin_page_info() {
 		?>
 		<div class="help-docs-wrapper">
-			<h2>Help Docs</h2>
+			<h2><?php echo esc_html( $admin_menu_title ); ?></h2>
 			<hr/>
 			<?php
 			echo '<p><a href="/wp-admin/admin.php?page=help-docs.php" class="button button-large">' . esc_html( __( '< Back' ) ) . '</a> <a href="/wp-admin/post-new.php?post_type=help_docs" class="button button-large">' . esc_html( __( 'New Help Doc' ) ) . '</a></p>';
