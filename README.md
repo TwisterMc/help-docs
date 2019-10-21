@@ -1,6 +1,10 @@
 # help-docs
 Creating Internal Help Documents in WordPress
 
+**Oct 20, 2019**
+
+* Setting up a foundation for custoimizing the menu label.
+
 **Oct 17, 2019**
 
 * Code cleanup. Trying to be better aligned with WordPress standards.
