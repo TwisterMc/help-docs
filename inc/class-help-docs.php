@@ -15,6 +15,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Help_Docs {
 
 	/**
+	 * Custom Admin Title
+	 */
+	public static function help_docs_admin_menu_title() {
+		return 'Help Menu';
+	}
+
+	/**
 	 * Custom Post Type
 	 */
 	public static function add_custom_post_type() {
@@ -73,9 +80,11 @@ class Help_Docs {
 	 * Add Admin Menus
 	 */
 	public static function help_docs_admin_menu() {
+		$admin_menu_title = self::help_docs_admin_menu_title();
+
 		add_menu_page(
-			'Help Docs',
-			'Help Docs',
+			$admin_menu_title,
+			$admin_menu_title,
 			'manage_options',
 			'help-docs.php',
 			'help_docs_admin_page',
@@ -96,9 +105,10 @@ class Help_Docs {
 	 * Help Docs Admin Main Page
 	 */
 	public static function help_docs_admin_page() {
+		$admin_menu_title = self::help_docs_admin_menu_title();
 		?>
 		<div class="help-docs-wrapper">
-			<h2>Welcome To Help Docs</h2>
+			<h2>Welcome To <?php echo esc_html( $admin_menu_title ); ?></h2>
 			<hr/>
 			<?php
 			echo '<p><a href="/wp-admin/post-new.php?post_type=help_docs" class="button button-large">' . esc_html( __( 'New Help Doc' ) ) . '</a></p>';
