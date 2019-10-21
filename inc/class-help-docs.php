@@ -18,7 +18,7 @@ class Help_Docs {
 	 * Custom Admin Title
 	 */
 	public static function help_docs_admin_menu_title() {
-		return 'Help Menu';
+		return 'Help Docs';
 	}
 
 	/**
@@ -92,12 +92,12 @@ class Help_Docs {
 			6
 		);
 		add_submenu_page(
-			'help-docs-info_page',
-			'Help Docs Details',
-			'Help Docs Details',
+			'help-docs.php',
+			'Settings',
+			'Settings',
 			'manage_options',
-			'help-docs-info.php',
-			'help_docs_admin_page_info'
+			'help-docs-settings',
+			'help_docs_settings'
 		);
 	}
 
@@ -162,5 +162,19 @@ class Help_Docs {
 			?>
 		</div>
 		<?php
+
 	}
+
+	/**
+	 * Help Docs Settings
+	 */
+	public static function help_docs_settings() {
+		$admin_menu_title = self::help_docs_admin_menu_title();
+		?>
+		<div class="help-docs-wrapper">
+			<h2><?php echo esc_html( $admin_menu_title ) . esc_html( __( ' Settings' ) ); ?></h2>
+		</div>
+
+		<?php
+	} 
 }

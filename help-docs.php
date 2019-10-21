@@ -53,6 +53,13 @@ function help_docs_admin_page_info() {
 }
 
 /**
+ * Settings Page
+ */
+function help_docs_settings() {
+	Help_Docs::help_docs_settings();
+}
+
+/**
  * Add Styles
  */
 function help_docs_add_style() {
