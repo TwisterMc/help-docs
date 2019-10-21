@@ -108,7 +108,7 @@ class Help_Docs {
 		$admin_menu_title = self::help_docs_admin_menu_title();
 		?>
 		<div class="help-docs-wrapper">
-			<h2>Welcome To <?php echo esc_html( $admin_menu_title ); ?></h2>
+			<h2><?php echo esc_html( __( 'Welcome To ' ) ) . esc_html( $admin_menu_title ); ?></h2>
 			<hr/>
 			<?php
 			echo '<p><a href="/wp-admin/post-new.php?post_type=help_docs" class="button button-large">' . esc_html( __( 'New Help Doc' ) ) . '</a></p>';
