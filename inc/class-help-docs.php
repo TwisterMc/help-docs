@@ -120,7 +120,7 @@ class Help_Docs {
 			<hr/>
 			<?php
 			echo '<p><a href="/wp-admin/post-new.php?post_type=help_docs" class="button button-large">' . esc_html( __( 'New Help Doc' ) ) . '</a></p>';
-			echo '<ul class="help_pages">';
+			echo '<ul class="help_pages" role="menu">';
 
 			$walker = new Help_Docs_Walker();
 
@@ -187,7 +187,7 @@ class Help_Docs {
 class Help_Docs_Walker extends Walker_Page {
 	public function start_lvl( &$output, $depth = 0, $args = array() ) {
 		$indent = str_repeat( "\t", $depth );
-		$output .= "\n$indent<ul class='dropdown-menu' role='menu'>\n";
+		$output .= "\n$indent<ul class='parent' role='menu'>\n";
 	}
 
 	public function start_el( &$output, $page, $depth = 0, $args = array(), $current_page = 0 ) {
@@ -242,7 +242,7 @@ class Help_Docs_Walker extends Walker_Page {
 		/** This filter is documented in wp-includes/post-template.php */
 		if ( isset( $args['pages_with_children'][ $page->ID ] ) ) {
 			$output .= $indent . sprintf(
-				'<li class="%s"><a href="%s" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">%s%s%s <span class="caret"></span></a>',
+				'<li class="%s"><a href="%s">%s%s%s</a>',
 				$css_classes,
 				'/wp-admin/admin.php?page=help-docs-info.php&id=' . $page->ID ,
 				$args['link_before'],
