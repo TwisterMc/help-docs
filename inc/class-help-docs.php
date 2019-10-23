@@ -91,14 +91,14 @@ class Help_Docs {
 			'dashicons-editor-help',
 			6
 		);
-		add_submenu_page(
-			'help-docs.php',
-			'Settings',
-			'Settings',
-			'manage_options',
-			'help-docs-settings.php',
-			'help_docs_settings'
-		);
+		// add_submenu_page(
+		// 	'help-docs.php',
+		// 	'Settings',
+		// 	'Settings',
+		// 	'manage_options',
+		// 	'help-docs-settings',
+		// 	'help_docs_settings'
+		// );
 		add_submenu_page(
 			'help-docs-info_page',
 			'Help Docs Details',
@@ -173,6 +173,9 @@ class Help_Docs {
 		?>
 		<div class="help-docs-wrapper">
 			<h2><?php echo esc_html( $admin_menu_title ) . esc_html( __( ' Settings' ) ); ?></h2>
+			<form method="post" action="admin.php?page=help-docs-settings">
+				<?php submit_button('Save Settings'); ?>
+			</form>
 		</div>
 
 		<?php
