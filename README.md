@@ -4,6 +4,7 @@ Creating Internal Help Documents in WordPress
 **Oct 22, 2019**
 
 * Re-working out we're outputting pages so that we can get children of children and so on.
+* Disabled the settings page for now since there are no options.
 
 **Oct 20, 2019**
 
