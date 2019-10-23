@@ -1,6 +1,10 @@
 # help-docs
 Creating Internal Help Documents in WordPress
 
+**Oct 22, 2019**
+
+* Re-working out we're outputting pages so that we can get children of children and so on.
+
 **Oct 20, 2019**
 
 * Setting up a foundation for custoimizing the menu label.
