@@ -2,21 +2,17 @@
 Help Docs Styles
 ------------------------------------------------------------------------ */
 
-.help-docs-wrapper { 
+.help-docs-wrapper {
     padding: 1em;
-    margin-right: 1em; 
-}
-
-.help-docs-wrapper .parent { 
-    margin-left: 1em; 
+    margin-right: 1em;
 }
 
 .help-docs-wrapper li,
 .help-docs-wrapper ul {
-    margin-bottom: 1em;
+    margin-left: 1em;
 }
 
-.help-docs-wrapper li { 
+.help-docs-wrapper li {
     list-style: disc;
 }
 
