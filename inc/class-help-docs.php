@@ -126,7 +126,7 @@ class Help_Docs {
 
 			$args = array(
 				'title_li'    => '',
-				'sort_column' => 'post_name',
+				'sort_column' => 'post_title',
 				'post_type'   => 'help_docs',
 				'walker'      => $walker,
 			);
