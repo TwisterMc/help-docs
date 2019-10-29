@@ -89,7 +89,7 @@ class Help_Docs {
 			'help-docs.php',
 			'help_docs_admin_page',
 			'dashicons-editor-help',
-			6
+			3
 		);
 		// add_submenu_page(
 		// 	'help-docs.php',
