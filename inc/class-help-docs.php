@@ -26,8 +26,8 @@ class Help_Docs {
 	 */
 	public static function add_custom_post_type() {
 		$labels = array(
-			'name'                  => _x( 'Documentation', 'Post Type General Name', 'help_docs' ),
-			'singular_name'         => _x( 'Documentation', 'Post Type Singular Name', 'help_docs' ),
+			'name'                  => _x( 'Help Docs Documentation', 'Post Type General Name', 'help_docs' ),
+			'singular_name'         => _x( 'Help Docs Documentation', 'Post Type Singular Name', 'help_docs' ),
 			'menu_name'             => __( 'Documentation', 'help_docs' ),
 			'name_admin_bar'        => __( 'Documentation', 'help_docs' ),
 			'archives'              => __( 'Item Archives', 'help_docs' ),
@@ -55,7 +55,7 @@ class Help_Docs {
 			'filter_items_list'     => __( 'Filter items list', 'help_docs' ),
 		);
 		$args   = array(
-			'label'               => __( 'Documentation', 'help_docs' ),
+			'label'               => __( 'Help Docs Documentation', 'help_docs' ),
 			'description'         => __( 'Post Type Description', 'help_docs' ),
 			'labels'              => $labels,
 			'hierarchical'        => true,
