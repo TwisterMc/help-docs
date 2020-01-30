@@ -119,7 +119,7 @@ class Help_Docs {
 			<h2><?php echo esc_html( __( 'Welcome To ' ) ) . esc_html( $admin_menu_title ); ?></h2>
 			<hr/>
 			<?php
-			echo '<p><a href="/wp-admin/post-new.php?post_type=help_docs" class="button button-large">' . esc_html( __( 'New Help Doc' ) ) . '</a></p>';
+			echo '<p><a href="' . esc_html( site_url() ) . '/wp-admin/post-new.php?post_type=help_docs" class="button button-large">' . esc_html( __( 'New Help Doc' ) ) . '</a></p>';
 			echo '<ul class="help_pages" role="menu">';
 
 			$walker = new Help_Docs_Walker();
@@ -148,13 +148,13 @@ class Help_Docs {
 			<h2><?php echo esc_html( $admin_menu_title ); ?></h2>
 			<hr/>
 			<?php
-			echo '<p><a href="/wp-admin/admin.php?page=help-docs.php" class="button button-large">' . esc_html( __( '< Back' ) ) . '</a> <a href="/wp-admin/post-new.php?post_type=help_docs" class="button button-large">' . esc_html( __( 'New Help Doc' ) ) . '</a></p>';
+			echo '<p><a href="' . esc_html( site_url() ) . '/wp-admin/admin.php?page=help-docs.php" class="button button-large">' . esc_html( __( '< Back' ) ) . '</a> <a href="' . esc_html( site_url() ) . '/wp-admin/post-new.php?post_type=help_docs" class="button button-large">' . esc_html( __( 'New Help Doc' ) ) . '</a></p>';
 			echo '<div class="entry-content">';
 			if ( isset( $_GET['id'] ) ) {
 				$variable = sanitize_key( $_GET['id'] );
 				echo '<h1>' . esc_html( get_the_title( $variable ) ) . '</h1>';
 				echo wpautop( get_post_field( 'post_content', $variable ) );
-				echo '<a href="/wp-admin/post.php?post=' . esc_html( $variable ) . '&action=edit" class="button button-large">' . esc_html( __( 'Edit' ) ) . '</a>';
+				echo '<a href="' . esc_html( site_url() ) . '/wp-admin/post.php?post=' . esc_html( $variable ) . '&action=edit" class="button button-large">' . esc_html( __( 'Edit' ) ) . '</a>';
 			} else {
 				echo 'Sorry. We\'re unable to load content due to missing ID';
 			}
