@@ -91,14 +91,14 @@ class Help_Docs {
 			'dashicons-editor-help',
 			3
 		);
-		// add_submenu_page(
-		// 	'help-docs.php',
-		// 	'Settings',
-		// 	'Settings',
-		// 	'manage_options',
-		// 	'help-docs-settings',
-		// 	'help_docs_settings'
-		// );
+//		add_submenu_page(
+//			'help-docs.php',
+//			'Settings',
+//			'Settings',
+//			'manage_options',
+//			'help-docs-settings',
+//			'help_docs_settings'
+//		);
 		add_submenu_page(
 			'help-docs-info_page',
 			'Help Docs Details',
@@ -173,8 +173,8 @@ class Help_Docs {
 		?>
 		<div class="help-docs-wrapper">
 			<h2><?php echo esc_html( $admin_menu_title ) . esc_html( __( ' Settings' ) ); ?></h2>
-			<form method="post" action="admin.php?page=help-docs-settings">
-				<?php submit_button('Save Settings'); ?>
+			<form method="post" action="<?php echo esc_html( site_url() ); ?>/wp-admin/admin.php?page=help-docs-settings">
+				<?php submit_button( 'Save Settings' ); ?>
 			</form>
 		</div>
 
@@ -247,7 +247,7 @@ class Help_Docs_Walker extends Walker_Page {
 			$output .= $indent . sprintf(
 				'<li class="%s"><a href="%s">%s%s%s</a>',
 				$css_classes,
-				'/wp-admin/admin.php?page=help-docs-info.php&id=' . $page->ID ,
+				esc_html( site_url() ) . '/wp-admin/admin.php?page=help-docs-info.php&id=' . $page->ID ,
 				$args['link_before'],
 				apply_filters( 'the_title', $page->post_title, $page->ID ),
 				$args['link_after']
@@ -256,7 +256,7 @@ class Help_Docs_Walker extends Walker_Page {
 			$output .= $indent . sprintf(
 				'<li class="%s"><a href="%s">%s%s%s</a>',
 				$css_classes,
-				'/wp-admin/admin.php?page=help-docs-info.php&id=' . $page->ID,
+				esc_html( site_url() ) . '/wp-admin/admin.php?page=help-docs-info.php&id=' . $page->ID,
 				$args['link_before'],
 				apply_filters( 'the_title', $page->post_title, $page->ID ),
 				$args['link_after']
