@@ -14,6 +14,7 @@ At this time, the plugin doesn't auto update so check back periodically for upda
 **Jan 29, 2020**
 
 * Better Read Me
+* Relative to Absolute URLs
 
 **Oct 22, 2019**
 
