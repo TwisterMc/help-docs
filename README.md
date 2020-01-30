@@ -7,7 +7,7 @@ You can create as many pages as you want, assign parents, and it'll all be displ
 
 Currently Help Docs uses the classic editor as Gutenberg is not available for private custom post types yet.
 
-At this time, the plugin doesn't auto update so check back periodically for updates
+At this time, the plugin doesn't auto update so check back periodically for updates.
 
 ### Release Notes
 
