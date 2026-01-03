@@ -71,7 +71,8 @@ class Help_Docs {
 			'exclude_from_search' => true,
 			'publicly_queryable'  => false,
 			'capability_type'     => 'page',
-			'show_in_rest'        => false, // also disables guteneberg.
+			'show_in_rest'        => true, 
+			'rest_base' => 'help_docs',  // Explicitly set the REST endpoint
 		);
 		register_post_type( 'help_docs', $args );
 	}
@@ -100,7 +101,7 @@ class Help_Docs {
 //			'help_docs_settings'
 //		);
 		add_submenu_page(
-			'help-docs-info_page',
+			'help-docs.php',
 			'Help Docs Details',
 			'Help Docs Details',
 			'manage_options',
@@ -114,12 +115,16 @@ class Help_Docs {
 	 */
 	public static function help_docs_admin_page() {
 		$admin_menu_title = self::help_docs_admin_menu_title();
+
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_die( esc_html__( 'Insufficient permissions', 'help_docs' ) );
+		}
 		?>
 		<div class="help-docs-wrapper">
-			<h2><?php echo esc_html( __( 'Welcome To ' ) ) . esc_html( $admin_menu_title ); ?></h2>
+			<h2><?php echo esc_html__( 'Welcome To', 'help_docs' ) . ' ' . esc_html( $admin_menu_title ); ?></h2>
 			<hr/>
 			<?php
-			echo '<p><a href="' . esc_html( site_url() ) . '/wp-admin/post-new.php?post_type=help_docs" class="button button-large">' . esc_html( __( 'New Help Doc' ) ) . '</a></p>';
+			echo '<p><a href="' . esc_url( admin_url( 'post-new.php?post_type=help_docs' ) ) . '" class="button button-large">' . esc_html__( 'New Help Doc', 'help_docs' ) . '</a></p>';
 			echo '<ul class="help_pages" role="menu">';
 
 			$walker = new Help_Docs_Walker();
@@ -143,27 +148,36 @@ class Help_Docs {
 	public static function help_docs_admin_page_info() {
 		$admin_menu_title = self::help_docs_admin_menu_title();
 
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_die( esc_html__( 'Insufficient permissions', 'help_docs' ) );
+		}
+
 		?>
 		<div class="help-docs-wrapper">
 			<h2><?php echo esc_html( $admin_menu_title ); ?></h2>
 			<hr/>
 			<?php
-			echo '<p><a href="' . esc_html( site_url() ) . '/wp-admin/admin.php?page=help-docs.php" class="button button-large">' . esc_html( __( '< Back' ) ) . '</a> <a href="' . esc_html( site_url() ) . '/wp-admin/post-new.php?post_type=help_docs" class="button button-large">' . esc_html( __( 'New Help Doc' ) ) . '</a></p>';
+			echo '<p><a href="' . esc_url( admin_url( 'admin.php?page=help-docs.php' ) ) . '" class="button button-large">' . esc_html__( '< Back', 'help_docs' ) . '</a> <a href="' . esc_url( admin_url( 'post-new.php?post_type=help_docs' ) ) . '" class="button button-large">' . esc_html__( 'New Help Doc', 'help_docs' ) . '</a></p>';
 			echo '<div class="entry-content">';
 			if ( isset( $_GET['id'] ) ) {
-				$variable = sanitize_key( $_GET['id'] );
-				echo '<h1>' . esc_html( get_the_title( $variable ) ) . '</h1>';
-				echo wpautop( get_post_field( 'post_content', $variable ) );
-				echo '<a href="' . esc_html( site_url() ) . '/wp-admin/post.php?post=' . esc_html( $variable ) . '&action=edit" class="button button-large">' . esc_html( __( 'Edit' ) ) . '</a>';
+				$id = absint( $_GET['id'] );
+				$post = get_post( $id );
+				if ( $post ) {
+					echo '<h1>' . esc_html( get_the_title( $id ) ) . '</h1>';
+					echo wp_kses_post( apply_filters( 'the_content', $post->post_content ) );
+					echo '<a href="' . esc_url( get_edit_post_link( $id ) ) . '" class="button button-large">' . esc_html__( 'Edit', 'help_docs' ) . '</a>';
+				} else {
+					echo esc_html__( 'Content not found.', 'help_docs' );
+				}
 			} else {
-				echo 'Sorry. We\'re unable to load content due to missing ID';
+				echo esc_html__( 'Sorry. We are unable to load content due to missing ID', 'help_docs' );
 			}
 			echo '</div>';
 			?>
 		</div>
 		<?php
 
-	}
+	} 
 
 	/**
 	 * Help Docs Settings
@@ -208,7 +222,7 @@ class Help_Docs_Walker extends Walker_Page {
 
 		if ( ! empty( $current_page ) ) {
 			$_current_page = get_post( $current_page );
-			if ( in_array( $page->ID, $_current_page->ancestors ) ) {
+			if ( in_array( $page->ID, (array) $_current_page->ancestors, true ) ) {
 				$css_class[] = 'current_page_ancestor';
 			}
 			if ( $page->ID === $current_page ) {
@@ -236,32 +250,22 @@ class Help_Docs_Walker extends Walker_Page {
 		$css_classes = implode( ' ', apply_filters( 'page_css_class', $css_class, $page, $depth, $args, $current_page ) );
 
 		if ( '' === $page->post_title ) {
-			$page->post_title = sprintf( __( '#%d (no title)' ), $page->ID );
+			$page->post_title = sprintf( __( '#%d (no title)', 'help_docs' ), $page->ID );
 		}
 
 		$args['link_before'] = empty( $args['link_before'] ) ? '' : $args['link_before'];
 		$args['link_after']  = empty( $args['link_after'] ) ? '' : $args['link_after'];
 
-		/** This filter is documented in wp-includes/post-template.php */
-		if ( isset( $args['pages_with_children'][ $page->ID ] ) ) {
-			$output .= $indent . sprintf(
-				'<li class="%s"><a href="%s">%s%s%s</a>',
-				$css_classes,
-				esc_html( site_url() ) . '/wp-admin/admin.php?page=help-docs-info.php&id=' . $page->ID ,
-				$args['link_before'],
-				apply_filters( 'the_title', $page->post_title, $page->ID ),
-				$args['link_after']
-			);
-		} else {
-			$output .= $indent . sprintf(
-				'<li class="%s"><a href="%s">%s%s%s</a>',
-				$css_classes,
-				esc_html( site_url() ) . '/wp-admin/admin.php?page=help-docs-info.php&id=' . $page->ID,
-				$args['link_before'],
-				apply_filters( 'the_title', $page->post_title, $page->ID ),
-				$args['link_after']
-			);
-		}
+		$link = esc_url( add_query_arg( array( 'page' => 'help-docs-info.php', 'id' => $page->ID ), admin_url( 'admin.php' ) ) );
+		$title = esc_html( apply_filters( 'the_title', $page->post_title, $page->ID ) );
+		$output .= $indent . sprintf(
+			'<li class="%s"><a href="%s">%s%s%s</a>',
+			esc_attr( $css_classes ),
+			$link,
+			$args['link_before'],
+			$title,
+			$args['link_after']
+		);
 
 		if ( ! empty( $args['show_date'] ) ) {
 			if ( 'modified' === $args['show_date'] ) {
