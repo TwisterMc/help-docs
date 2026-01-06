@@ -64,6 +64,38 @@ function help_docs_settings() {
 }
 
 /**
+ * Save Settings Handler
+ */
+function help_docs_save_settings() {
+	// Check if user has permission
+	if ( ! current_user_can( 'manage_options' ) ) {
+		wp_die( esc_html__( 'Insufficient permissions', 'help_docs' ) );
+	}
+
+	// Verify nonce
+	if ( ! isset( $_POST['help_docs_settings_nonce'] ) || ! wp_verify_nonce( $_POST['help_docs_settings_nonce'], 'help_docs_save_settings' ) ) {
+		wp_die( esc_html__( 'Security check failed', 'help_docs' ) );
+	}
+
+	// Save menu title
+	if ( isset( $_POST['help_docs_menu_title'] ) ) {
+		update_option( 'help_docs_menu_title', sanitize_text_field( $_POST['help_docs_menu_title'] ) );
+	}
+
+	// Save Gutenberg setting
+	$enable_gutenberg = isset( $_POST['help_docs_enable_gutenberg'] ) ? true : false;
+	update_option( 'help_docs_enable_gutenberg', $enable_gutenberg );
+
+	// Flush rewrite rules to ensure post type changes take effect
+	flush_rewrite_rules();
+
+	// Redirect back to settings page with success message
+	wp_redirect( add_query_arg( 'updated', 'true', admin_url( 'admin.php?page=help-docs-settings' ) ) );
+	exit;
+}
+add_action( 'admin_post_help_docs_save_settings', 'help_docs_save_settings' );
+
+/**
  * Add Styles
  */
 function help_docs_add_style( $hook ) {
@@ -77,13 +109,17 @@ function help_docs_add_style( $hook ) {
 
 	// When viewing Help Docs detail page in admin, enqueue core block styles
 	// so block content (Gutenberg) is rendered correctly outside the block editor.
+	// Only needed if show_in_rest is enabled for Gutenberg support.
 	if ( isset( $_GET['page'] ) && 'help-docs-info.php' === $_GET['page'] ) {
-		// Enqueue WP core block styles if they are registered.
-		if ( wp_style_is( 'wp-block-library', 'registered' ) ) {
-			wp_enqueue_style( 'wp-block-library' );
-		}
-		if ( wp_style_is( 'wp-block-library-theme', 'registered' ) ) {
-			wp_enqueue_style( 'wp-block-library-theme' );
+		$post_type_object = get_post_type_object( 'help_docs' );
+		if ( $post_type_object && ! empty( $post_type_object->show_in_rest ) ) {
+			// Enqueue WP core block styles if they are registered.
+			if ( wp_style_is( 'wp-block-library', 'registered' ) ) {
+				wp_enqueue_style( 'wp-block-library' );
+			}
+			if ( wp_style_is( 'wp-block-library-theme', 'registered' ) ) {
+				wp_enqueue_style( 'wp-block-library-theme' );
+			}
 		}
 	}
 }
@@ -152,4 +188,15 @@ function help_docs_restrict_rest_auth( $result ) {
 
     return $result;
 }
-add_filter( 'rest_authentication_errors', 'help_docs_restrict_rest_auth' );
+
+/**
+ * Conditionally add REST API restriction if show_in_rest is enabled.
+ * Runs after post type registration to ensure the setting is available.
+ */
+function help_docs_maybe_add_rest_auth() {
+	$post_type_object = get_post_type_object( 'help_docs' );
+	if ( $post_type_object && ! empty( $post_type_object->show_in_rest ) ) {
+		add_filter( 'rest_authentication_errors', 'help_docs_restrict_rest_auth' );
+	}
+}
+add_action( 'init', 'help_docs_maybe_add_rest_auth', 20 ); // Priority 20 to run after post type registration

@@ -18,7 +18,7 @@ class Help_Docs {
 	 * Custom Admin Title
 	 */
 	public static function help_docs_admin_menu_title() {
-		return 'Help Docs';
+		return get_option( 'help_docs_menu_title', 'Help Docs' );
 	}
 
 	/**
@@ -71,7 +71,7 @@ class Help_Docs {
 			'exclude_from_search' => true,
 			'publicly_queryable'  => false,
 			'capability_type'     => 'page',
-			'show_in_rest'        => true, 
+			'show_in_rest'        => (bool) get_option( 'help_docs_enable_gutenberg', false ),
 			'rest_base' => 'help_docs',  // Explicitly set the REST endpoint
 		);
 		register_post_type( 'help_docs', $args );
@@ -84,27 +84,27 @@ class Help_Docs {
 		$admin_menu_title = self::help_docs_admin_menu_title();
 
 		add_menu_page(
-			$admin_menu_title,
-			$admin_menu_title,
-			'manage_options',
+			'Help Docs',
+			'Help Docs',
+			'read',
 			'help-docs.php',
 			'help_docs_admin_page',
 			'dashicons-editor-help',
 			3
 		);
-//		add_submenu_page(
-//			'help-docs.php',
-//			'Settings',
-//			'Settings',
-//			'manage_options',
-//			'help-docs-settings',
-//			'help_docs_settings'
-//		);
 		add_submenu_page(
 			'help-docs.php',
-			'Help Docs Details',
-			'Help Docs Details',
+			'Settings',
+			'Settings',
 			'manage_options',
+			'help-docs-settings',
+			'help_docs_settings'
+		);
+		add_submenu_page(
+			'help-docs.php',
+			'Help Doc Details',
+			'Help Doc Details',
+			'read',
 			'help-docs-info.php',
 			'help_docs_admin_page_info'
 		);
@@ -121,7 +121,14 @@ class Help_Docs {
 		}
 		?>
 		<div class="help-docs-wrapper">
-			<h2><?php echo esc_html__( 'Welcome To', 'help_docs' ) . ' ' . esc_html( $admin_menu_title ); ?></h2>
+			<h2><?php 
+				// Only show "Welcome To" prefix if using default title
+				if ( $admin_menu_title === 'Help Docs' ) {
+					echo esc_html__( 'Welcome To', 'help_docs' ) . ' ' . esc_html( $admin_menu_title );
+				} else {
+					echo esc_html( $admin_menu_title );
+				}
+			?></h2>
 			<hr/>
 			<?php
 			echo '<p><a href="' . esc_url( admin_url( 'post-new.php?post_type=help_docs' ) ) . '" class="button button-large">' . esc_html__( 'New Help Doc', 'help_docs' ) . '</a></p>';
@@ -183,12 +190,63 @@ class Help_Docs {
 	 * Help Docs Settings
 	 */
 	public static function help_docs_settings() {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_die( esc_html__( 'Insufficient permissions', 'help_docs' ) );
+		}
+
 		$admin_menu_title = self::help_docs_admin_menu_title();
+		$current_title = get_option( 'help_docs_menu_title', 'Help Docs' );
+		$enable_gutenberg = get_option( 'help_docs_enable_gutenberg', false );
 		?>
 		<div class="help-docs-wrapper">
-			<h2><?php echo esc_html( $admin_menu_title ) . esc_html( __( ' Settings' ) ); ?></h2>
-			<form method="post" action="<?php echo esc_html( site_url() ); ?>/wp-admin/admin.php?page=help-docs-settings">
-				<?php submit_button( 'Save Settings' ); ?>
+			<h2><?php echo esc_html( $admin_menu_title ) . esc_html__( ' Settings', 'help_docs' ); ?></h2>
+			<hr/>
+			<?php if ( isset( $_GET['updated'] ) && $_GET['updated'] === 'true' ) : ?>
+				<div class="notice notice-success is-dismissible">
+					<p><?php esc_html_e( 'Settings saved successfully!', 'help_docs' ); ?></p>
+				</div>
+			<?php endif; ?>
+			<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
+				<?php wp_nonce_field( 'help_docs_save_settings', 'help_docs_settings_nonce' ); ?>
+				<input type="hidden" name="action" value="help_docs_save_settings" />
+				
+				<table class="form-table" role="presentation">
+					<tbody>
+						<tr>
+							<th scope="row">
+								<label for="help_docs_menu_title"><?php esc_html_e( 'Page Title', 'help_docs' ); ?></label>
+							</th>
+							<td>
+								<input type="text" 
+									id="help_docs_menu_title" 
+									name="help_docs_menu_title" 
+									value="<?php echo esc_attr( $current_title ); ?>" 
+									class="regular-text" />
+								<p class="description"><?php esc_html_e( 'Help Docs page title.', 'help_docs' ); ?></p>
+							</td>
+						</tr>
+						<tr>
+							<th scope="row">
+								<?php esc_html_e( 'Enable Gutenberg Editor', 'help_docs' ); ?>
+							</th>
+							<td>
+								<fieldset>
+									<label for="help_docs_enable_gutenberg">
+										<input type="checkbox" 
+											id="help_docs_enable_gutenberg" 
+											name="help_docs_enable_gutenberg" 
+											value="1" 
+											<?php checked( $enable_gutenberg, true ); ?> />
+										<?php esc_html_e( 'Enable the Gutenberg block editor for Help Docs', 'help_docs' ); ?>
+									</label>
+									<p class="description"><?php esc_html_e( 'When enabled, uses the Gutenberg block editor. When disabled, uses the classic editor.', 'help_docs' ); ?></p>
+								</fieldset>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+				
+				<?php submit_button( __( 'Save Settings', 'help_docs' ) ); ?>
 			</form>
 		</div>
 
