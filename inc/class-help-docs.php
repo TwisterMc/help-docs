@@ -15,10 +15,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Help_Docs {
 
 	/**
-	 * Custom Admin Title
+	 * Get admin page heading
 	 */
-	public static function help_docs_admin_menu_title() {
-		return get_option( 'help_docs_menu_title', 'Help Docs' );
+	public static function get_help_docs_page_heading() {
+		return get_option( 'help_docs_page_heading', 'Help Docs' );
 	}
 
 	/**
@@ -81,7 +81,7 @@ class Help_Docs {
 	 * Add Admin Menus
 	 */
 	public static function help_docs_admin_menu() {
-		$admin_menu_title = self::help_docs_admin_menu_title();
+		$page_heading = self::get_help_docs_page_heading();
 
 		add_menu_page(
 			'Help Docs',
@@ -114,19 +114,19 @@ class Help_Docs {
 	 * Help Docs Admin Main Page
 	 */
 	public static function help_docs_admin_page() {
-		$admin_menu_title = self::help_docs_admin_menu_title();
+		$page_heading = self::get_help_docs_page_heading();
 
-		if ( ! current_user_can( 'manage_options' ) ) {
+		if ( ! current_user_can( 'read' ) ) {
 			wp_die( esc_html__( 'Insufficient permissions', 'help_docs' ) );
 		}
 		?>
 		<div class="help-docs-wrapper">
 			<h2><?php 
-				// Only show "Welcome To" prefix if using default title
-				if ( $admin_menu_title === 'Help Docs' ) {
-					echo esc_html__( 'Welcome To', 'help_docs' ) . ' ' . esc_html( $admin_menu_title );
+				// Only show "Welcome To" prefix if using default heading
+				if ( $page_heading === 'Help Docs' ) {
+					echo esc_html__( 'Welcome To', 'help_docs' ) . ' ' . esc_html( $page_heading );
 				} else {
-					echo esc_html( $admin_menu_title );
+					echo esc_html( $page_heading );
 				}
 			?></h2>
 			<hr/>
@@ -153,15 +153,15 @@ class Help_Docs {
 	 * @var array $_GET is used to pass in the help document post id
 	 */
 	public static function help_docs_admin_page_info() {
-		$admin_menu_title = self::help_docs_admin_menu_title();
+		$page_heading = self::get_help_docs_page_heading();
 
-		if ( ! current_user_can( 'manage_options' ) ) {
+		if ( ! current_user_can( 'read' ) ) {
 			wp_die( esc_html__( 'Insufficient permissions', 'help_docs' ) );
 		}
 
 		?>
 		<div class="help-docs-wrapper">
-			<h2><?php echo esc_html( $admin_menu_title ); ?></h2>
+			<h2><?php echo esc_html( $page_heading ); ?></h2>
 			<hr/>
 			<?php
 			echo '<p><a href="' . esc_url( admin_url( 'admin.php?page=help-docs.php' ) ) . '" class="button button-large">' . esc_html__( '< Back', 'help_docs' ) . '</a> <a href="' . esc_url( admin_url( 'post-new.php?post_type=help_docs' ) ) . '" class="button button-large">' . esc_html__( 'New Help Doc', 'help_docs' ) . '</a></p>';
@@ -177,7 +177,7 @@ class Help_Docs {
 					echo esc_html__( 'Content not found.', 'help_docs' );
 				}
 			} else {
-				echo esc_html__( 'Sorry. We are unable to load content due to missing ID', 'help_docs' );
+				echo esc_html__( 'Sorry. No help document found.', 'help_docs' );
 			}
 			echo '</div>';
 			?>
@@ -194,14 +194,14 @@ class Help_Docs {
 			wp_die( esc_html__( 'Insufficient permissions', 'help_docs' ) );
 		}
 
-		$admin_menu_title = self::help_docs_admin_menu_title();
-		$current_title = get_option( 'help_docs_menu_title', 'Help Docs' );
+		$page_heading = self::get_help_docs_page_heading();
+		$current_heading = get_option( 'help_docs_page_heading', 'Help Docs' );
 		$enable_gutenberg = get_option( 'help_docs_enable_gutenberg', false );
 		?>
 		<div class="help-docs-wrapper">
-			<h2><?php echo esc_html( $admin_menu_title ) . esc_html__( ' Settings', 'help_docs' ); ?></h2>
+			<h2><?php esc_html_e( 'Help Docs Settings', 'help_docs' ); ?></h2>
 			<hr/>
-			<?php if ( isset( $_GET['updated'] ) && $_GET['updated'] === 'true' ) : ?>
+			<?php if ( isset( $_GET['updated'] ) && 'true' === sanitize_key( wp_unslash( $_GET['updated'] ) ) ) : ?>
 				<div class="notice notice-success is-dismissible">
 					<p><?php esc_html_e( 'Settings saved successfully!', 'help_docs' ); ?></p>
 				</div>
@@ -214,15 +214,15 @@ class Help_Docs {
 					<tbody>
 						<tr>
 							<th scope="row">
-								<label for="help_docs_menu_title"><?php esc_html_e( 'Page Title', 'help_docs' ); ?></label>
+								<label for="help_docs_page_heading"><?php esc_html_e( 'Page Heading', 'help_docs' ); ?></label>
 							</th>
 							<td>
 								<input type="text" 
-									id="help_docs_menu_title" 
-									name="help_docs_menu_title" 
-									value="<?php echo esc_attr( $current_title ); ?>" 
+									id="help_docs_page_heading" 
+									name="help_docs_page_heading" 
+									value="<?php echo esc_attr( $current_heading ); ?>" 
 									class="regular-text" />
-								<p class="description"><?php esc_html_e( 'Help Docs page title.', 'help_docs' ); ?></p>
+								<p class="description"><?php esc_html_e( 'Help Docs page heading.', 'help_docs' ); ?></p>
 							</td>
 						</tr>
 						<tr>

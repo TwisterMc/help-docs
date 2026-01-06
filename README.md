@@ -8,15 +8,24 @@ You can create as many pages as you want, assign parents, and it'll all be displ
 
 Help Docs supports both the Classic Editor and Gutenberg Block Editor. You can enable Gutenberg support in the Settings page if you prefer using the block editor for your documentation.
 
-If you enable Gutenberg, the help docs will appear in the API, but will not be visible on the front end of your site as we're blockng access to the custom post type.
+If you enable Gutenberg, the help docs will appear in the API, but will not be visible on the front end of your site as we're blocking access to the custom post type.
 
 At this time, the plugin doesn't auto update so check back periodically for updates.
+
+## System Requirements
+
+- **WordPress:** 6.0 or greater
+- **PHP:** 8.3 or greater
+- **Database:** MySQL 8.0 or greater OR MariaDB 10.6 or greater
+- **HTTPS:** Required for admin pages (enforce at site/server level)
 
 ## Features
 
 - Admin-only custom post type for internal documentation
+- Hierarchical page structure with parent/child relationships
 - Optional Gutenberg (Block Editor) support
-- Customizable page title
+- Customizable admin page heading (configured in Settings)
+- Restricted REST API access (logged-in users only when Gutenberg enabled)
 - Clean, simple interface optimized for documentation
 
 ### Release Notes

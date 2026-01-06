@@ -8,6 +8,9 @@
  * Version: 0.2
  * Author URI: https://www.twistermc.com
  * Text Domain: help_docs
+ * Requires WordPress: 6.0
+ * Requires PHP: 8.3
+ * Requires: MySQL 8.0+, MariaDB 10.6+
  */
 
 /**
@@ -77,9 +80,9 @@ function help_docs_save_settings() {
 		wp_die( esc_html__( 'Security check failed', 'help_docs' ) );
 	}
 
-	// Save menu title
-	if ( isset( $_POST['help_docs_menu_title'] ) ) {
-		update_option( 'help_docs_menu_title', sanitize_text_field( $_POST['help_docs_menu_title'] ) );
+	// Save page heading
+	if ( isset( $_POST['help_docs_page_heading'] ) ) {
+		update_option( 'help_docs_page_heading', sanitize_text_field( $_POST['help_docs_page_heading'] ) );
 	}
 
 	// Save Gutenberg setting
