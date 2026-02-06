@@ -99,6 +99,30 @@ function help_docs_save_settings() {
 add_action( 'admin_post_help_docs_save_settings', 'help_docs_save_settings' );
 
 /**
+ * Set default status to private for new help_docs posts
+ */
+function help_docs_default_post_status( $post_status, $post_type, $post ) {
+	if ( 'help_docs' === $post_type && 'auto-draft' === $post_status ) {
+		return 'private';
+	}
+	return $post_status;
+}
+add_filter( 'default_post_status', 'help_docs_default_post_status', 10, 3 );
+
+/**
+ * Force help_docs posts to always be private when saved
+ */
+function help_docs_force_private_status( $data, $postarr ) {
+	if ( isset( $data['post_type'] ) && 'help_docs' === $data['post_type'] ) {
+		if ( 'publish' === $data['post_status'] ) {
+			$data['post_status'] = 'private';
+		}
+	}
+	return $data;
+}
+add_filter( 'wp_insert_post_data', 'help_docs_force_private_status', 10, 2 );
+
+/**
  * Add Styles
  */
 function help_docs_add_style( $hook ) {
