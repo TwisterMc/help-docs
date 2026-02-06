@@ -15,7 +15,7 @@ At this time, the plugin doesn't auto update so check back periodically for upda
 ## System Requirements
 
 - **WordPress:** 6.0 or greater
-- **PHP:** 8.3 or greater
+- **PHP:** 7.4 or greater
 - **Database:** MySQL 8.0 or greater OR MariaDB 10.6 or greater
 - **HTTPS:** Required for admin pages (enforce at site/server level)
 
