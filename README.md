@@ -1,34 +1,54 @@
 # Help Docs
 
-Help Docs helps you in creating a help section in the WordPress admin.
+Create a help section directly in your WordPress admin dashboard.
 
-Help Docs does this by creating a custom post type that is only visible on the backend. You then create content just like any WordPress post or page, publish it, and you're done.
+## Description
 
-You can create as many pages as you want, assign parents, and it'll all be displayed on the main Help Docs page.
+Help Docs makes it easy to build internal documentation for your WordPress site. The plugin creates a custom post type that exists exclusively in the backend, allowing you to build a knowledge base that's always accessible to your site administrators and editors.
 
-Help Docs supports both the Classic Editor and Gutenberg Block Editor. You can enable Gutenberg support in the Settings page if you prefer using the block editor for your documentation.
+## Features
 
-If you enable Gutenberg, the help docs will appear in the API, but will not be visible on the front end of your site as we're blocking access to the custom post type.
+- **Simple Content Creation**: Create help documentation just like any standard WordPress post or page
+- **Hierarchical Organization**: Build nested documentation with parent-child page relationships for easy navigation
+- **Flexible Editor Support**: Works with both the Classic Editor (default) and Gutenberg Block Editor
+- **WordPress Admin Only Access**: All documentation is accessible only within the WordPress admin area
 
-At this time, the plugin doesn't auto update so check back periodically for updates.
+## How It Works
+
+1. Create new help documents using the familiar WordPress editor
+2. Organize your content with parent pages and nested subpages
+3. Publish your documentation
+4. Access everything from the main Help Docs page in your admin dashboard
+
+## Gutenberg Support
+
+Gutenberg (Block Editor) support can be enabled in the plugin settings. When enabled:
+
+- You can use the full block editor for creating your help documentation
+- Help docs will be accessible via the WordPress REST API
+- Content remains blocked to unauthenticated users
+
+## Updates
+
+Currently, this plugin does not auto-update. Please check back periodically for new versions and improvements.
+
+## Support
+
+For questions, issues, or feature requests, please reach out through GitHub.
 
 ## System Requirements
 
 - **WordPress:** 6.0 or greater
 - **PHP:** 7.4 or greater
-- **Database:** MySQL 8.0 or greater OR MariaDB 10.6 or greater
+- **Database:** MySQL 5.6 or greater OR MariaDB 10.1 or greater
 - **HTTPS:** Required for admin pages (enforce at site/server level)
 
-## Features
-
-- Admin-only custom post type for internal documentation
-- Hierarchical page structure with parent/child relationships
-- Optional Gutenberg (Block Editor) support
-- Customizable admin page heading (configured in Settings)
-- Restricted REST API access (logged-in users only when Gutenberg enabled)
-- Clean, simple interface optimized for documentation
-
 ### Release Notes
+
+**Feb 6, 2026**
+
+- Version 0.3
+- Improved documentation and dropped PHP quirement to 7.4 for better compatibility.
 
 **Jan 5, 2026**
 
