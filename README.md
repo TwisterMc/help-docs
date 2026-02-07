@@ -48,7 +48,10 @@ For questions, issues, or feature requests, please reach out through GitHub.
 **Feb 6, 2026**
 
 - Version 0.3
-- Improved documentation and dropped PHP quirement to 7.4 for better compatibility.
+- Improved documentation
+- Dropped PHP requirement to 7.4 for better compatibility.
+- Updated post status' to be private.
+- Updated some internal strings.
 
 **Jan 5, 2026**
 
