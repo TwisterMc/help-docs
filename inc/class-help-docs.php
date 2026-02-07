@@ -26,8 +26,8 @@ class Help_Docs {
 	 */
 	public static function add_custom_post_type() {
 		$labels = array(
-			'name'                  => _x( 'Help Docs Documentation', 'Post Type General Name', 'help_docs' ),
-			'singular_name'         => _x( 'Help Docs Documentation', 'Post Type Singular Name', 'help_docs' ),
+			'name'                  => _x( 'Help Docs', 'Post Type General Name', 'help_docs' ),
+			'singular_name'         => _x( 'Help Doc', 'Post Type Singular Name', 'help_docs' ),
 			'menu_name'             => __( 'Documentation', 'help_docs' ),
 			'name_admin_bar'        => __( 'Documentation', 'help_docs' ),
 			'archives'              => __( 'Item Archives', 'help_docs' ),
@@ -55,8 +55,8 @@ class Help_Docs {
 			'filter_items_list'     => __( 'Filter items list', 'help_docs' ),
 		);
 		$args   = array(
-			'label'               => __( 'Help Docs Documentation', 'help_docs' ),
-			'description'         => __( 'Post Type Description', 'help_docs' ),
+			'label'               => __( 'Help Docs', 'help_docs' ),
+			'description'         => __( 'Your site\'s help documentation', 'help_docs' ),
 			'labels'              => $labels,
 			'hierarchical'        => true,
 			'supports'            => array( 'title', 'editor', 'page-attributes' ),
@@ -134,18 +134,27 @@ class Help_Docs {
 			echo '<p><a href="' . esc_url( admin_url( 'post-new.php?post_type=help_docs' ) ) . '" class="button button-large">' . esc_html__( 'New Help Doc', 'help_docs' ) . '</a></p>';
 			echo '<ul class="help_pages" role="menu">';
 
-			$walker = new Help_Docs_Walker();
+			$posts = get_posts( array(
+				'post_type'      => 'help_docs',
+				'posts_per_page' => -1,
+				'orderby'        => 'title',
+				'order'          => 'ASC',
+				'post_status'    => array( 'publish', 'draft', 'pending', 'private' ),
+			) );
 
-			$args = array(
-				'title_li'    => '',
-				'sort_column' => 'post_title',
-				'post_type'   => 'help_docs',
-				'walker'      => $walker,
-			);
+			if ( $posts ) {
+				foreach ( $posts as $post ) {
+					$link = esc_url( add_query_arg( array( 'page' => 'help-docs-info.php', 'id' => $post->ID ), admin_url( 'admin.php' ) ) );
+					$title = esc_html( $post->post_title );
+					echo '<li><a href="' . $link . '">' . $title . '</a></li>';
+				}
+			} else {
+				echo '<li>' . esc_html__( 'No help documents found.', 'help_docs' ) . '</li>';
+			}
 
-			wp_list_pages( $args );
-			echo '</ul>';
-	}
+			echo '</ul>';		?>
+		</div>
+		<?php	}
 
 	/**
 	 * Help Page Details

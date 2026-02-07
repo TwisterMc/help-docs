@@ -42,6 +42,14 @@ add_action( 'init', 'add_custom_post_type', 0 );
  */
 function help_docs_admin_menu() {
 	Help_Docs::help_docs_admin_menu();
+	// Hide the detail page submenu with CSS instead of removing it
+	add_action( 'admin_head', function() {
+		echo '<style>
+			.wp-submenu a[href*="help-docs-info.php"] {
+				display: none !important;
+			}
+		</style>';
+	});
 }
 add_action( 'admin_menu', 'help_docs_admin_menu' );
 
