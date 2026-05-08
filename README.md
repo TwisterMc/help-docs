@@ -12,6 +12,7 @@ Help Docs makes it easy to build internal documentation for your WordPress site.
 - **Hierarchical Organization**: Build nested documentation with parent-child page relationships for easy navigation
 - **Flexible Editor Support**: Works with both the Classic Editor (default) and Gutenberg Block Editor
 - **WordPress Admin Only Access**: All documentation is accessible only within the WordPress admin area
+- **Localization Ready**: Fully translatable with bundled Spanish (es_ES) translation
 
 ## How It Works
 
@@ -44,6 +45,14 @@ For questions, issues, or feature requests, please reach out through GitHub.
 - **HTTPS:** Required for admin pages (enforce at site/server level)
 
 ### Release Notes
+
+**May 8, 2026**
+
+- Version 0.4
+- Added Spanish (es_ES) translation; plugin is now fully localization-ready with a `.pot` template for additional languages
+- Improved admin performance with transient caching for the help docs list; cache is automatically invalidated when docs are saved or deleted
+- Improved accessibility on admin page links with descriptive `aria-label` attributes
+- Internal code cleanup: consolidated plugin hooks
 
 **Feb 6, 2026**
 
