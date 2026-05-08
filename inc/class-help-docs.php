@@ -132,7 +132,7 @@ class Help_Docs {
 			<hr/>
 			<?php
 			echo '<p><a href="' . esc_url( admin_url( 'post-new.php?post_type=help_docs' ) ) . '" class="button button-large">' . esc_html__( 'New Help Doc', 'help_docs' ) . '</a></p>';
-			echo '<ul class="help_pages" role="menu">';
+			echo '<ul class="help_pages">';
 
 			$posts = get_posts( array(
 				'post_type'      => 'help_docs',
@@ -174,7 +174,7 @@ class Help_Docs {
 			<h2><?php echo esc_html( $page_heading ); ?></h2>
 			<hr/>
 			<?php
-			echo '<p><a href="' . esc_url( admin_url( 'admin.php?page=help-docs.php' ) ) . '" class="button button-large">' . esc_html__( '< Back', 'help_docs' ) . '</a> <a href="' . esc_url( admin_url( 'post-new.php?post_type=help_docs' ) ) . '" class="button button-large">' . esc_html__( 'New Help Doc', 'help_docs' ) . '</a></p>';
+			echo '<p><a href="' . esc_url( admin_url( 'admin.php?page=help-docs.php' ) ) . '" class="button button-large">' . esc_html__( 'Back to Help Docs', 'help_docs' ) . '</a> <a href="' . esc_url( admin_url( 'post-new.php?post_type=help_docs' ) ) . '" class="button button-large">' . esc_html__( 'New Help Doc', 'help_docs' ) . '</a></p>';
 			echo '<div class="entry-content">';
 			if ( isset( $_GET['id'] ) ) {
 				$id   = absint( $_GET['id'] );
@@ -182,7 +182,7 @@ class Help_Docs {
 				if ( $post && 'help_docs' === $post->post_type ) {
 					echo '<h1>' . esc_html( get_the_title( $id ) ) . '</h1>';
 					echo wp_kses_post( apply_filters( 'the_content', $post->post_content ) );
-					echo '<a href="' . esc_url( get_edit_post_link( $id ) ) . '" class="button button-large">' . esc_html__( 'Edit', 'help_docs' ) . '</a>';
+					echo '<a href="' . esc_url( get_edit_post_link( $id ) ) . '" class="button button-large" aria-label="' . esc_attr( sprintf( __( 'Edit: %s', 'help_docs' ), get_the_title( $id ) ) ) . '">' . esc_html__( 'Edit', 'help_docs' ) . '</a>';
 				} else {
 					echo esc_html__( 'Content not found.', 'help_docs' );
 				}
@@ -274,7 +274,7 @@ class Help_Docs {
 class Help_Docs_Walker extends Walker_Page {
 	public function start_lvl( &$output, $depth = 0, $args = array() ) {
 		$indent = str_repeat( "\t", $depth );
-		$output .= "\n$indent<ul class='parent' role='menu'>\n";
+		$output .= "\n$indent<ul class='parent'>\n";
 	}
 
 	public function start_el( &$output, $page, $depth = 0, $args = array(), $current_page = 0 ) {
