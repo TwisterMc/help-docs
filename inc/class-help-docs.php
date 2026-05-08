@@ -25,6 +25,8 @@ class Help_Docs {
 		add_filter( 'wp_insert_post_data', array( self::class, 'force_private_status' ), 10, 2 );
 		add_action( 'admin_enqueue_scripts', array( self::class, 'add_style' ) );
 		add_action( 'init', array( self::class, 'maybe_add_rest_auth' ), 20 );
+		add_action( 'save_post_help_docs', array( self::class, 'invalidate_post_cache' ) );
+		add_action( 'delete_post', array( self::class, 'invalidate_post_cache' ) );
 	}
 
 	/**
@@ -144,14 +146,20 @@ class Help_Docs {
 			echo '<p><a href="' . esc_url( admin_url( 'post-new.php?post_type=help_docs' ) ) . '" class="button button-large">' . esc_html__( 'New Help Doc', 'help_docs' ) . '</a></p>';
 			echo '<ul class="help_pages">';
 
-			$posts = get_posts( array(
-				'post_type'      => 'help_docs',
-				'posts_per_page' => -1,
-				'orderby'        => 'title',
-				'order'          => 'ASC',
-				'post_status'    => array( 'publish', 'draft', 'pending', 'private' ),
-				'no_found_rows'  => true,
-			) );
+			$cache_key = 'help_docs_admin_list';
+			$posts = get_transient( $cache_key );
+
+			if ( false === $posts ) {
+				$posts = get_posts( array(
+					'post_type'      => 'help_docs',
+					'posts_per_page' => -1,
+					'orderby'        => 'title',
+					'order'          => 'ASC',
+					'post_status'    => array( 'publish', 'draft', 'pending', 'private' ),
+					'no_found_rows'  => true,
+				) );
+				set_transient( $cache_key, $posts, HOUR_IN_SECONDS );
+			}
 
 			if ( $posts ) {
 				foreach ( $posts as $post ) {
@@ -185,7 +193,7 @@ class Help_Docs {
 			<h2><?php echo esc_html( $page_heading ); ?></h2>
 			<hr/>
 			<?php
-			echo '<p><a href="' . esc_url( admin_url( 'admin.php?page=help-docs.php' ) ) . '" class="button button-large">' . esc_html__( 'Back to Help Docs', 'help_docs' ) . '</a> <a href="' . esc_url( admin_url( 'post-new.php?post_type=help_docs' ) ) . '" class="button button-large">' . esc_html__( 'New Help Doc', 'help_docs' ) . '</a></p>';
+			echo '<p><a href="' . esc_url( admin_url( 'admin.php?page=help-docs.php' ) ) . '" class="button button-large" aria-label="' . esc_attr( __( 'Back to Help Docs list', 'help_docs' ) ) . '">' . esc_html__( 'Back to Help Docs', 'help_docs' ) . '</a> <a href="' . esc_url( admin_url( 'post-new.php?post_type=help_docs' ) ) . '" class="button button-large" aria-label="' . esc_attr( __( 'Create a new Help Doc', 'help_docs' ) ) . '">' . esc_html__( 'New Help Doc', 'help_docs' ) . '</a></p>';
 			echo '<div class="entry-content">';
 			if ( isset( $_GET['id'] ) ) {
 				$id   = absint( $_GET['id'] );
@@ -295,6 +303,13 @@ class Help_Docs {
 
 		wp_redirect( admin_url( 'admin.php?page=help-docs-settings' ) );
 		exit;
+	}
+
+	/**
+	 * Invalidate the admin list cache when help docs are saved or deleted.
+	 */
+	public static function invalidate_post_cache(): void {
+		delete_transient( 'help_docs_admin_list' );
 	}
 
 	/**
