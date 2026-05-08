@@ -1,0 +1,227 @@
+# Spanish (Spain) translation for Help Docs
+# Copyright (C) 2024 Thomas McMahon
+# This file is distributed under the same license as the Help Docs plugin.
+msgid ""
+msgstr ""
+"Project-Id-Version: Help Docs 0.3\n"
+"Report-Msgid-Bugs-To: https://www.twistermc.com\n"
+"POT-Creation-Date: 2026-05-08T00:00:00+00:00\n"
+"PO-Revision-Date: 2026-05-08T00:00:00+00:00\n"
+"Last-Translator: Thomas McMahon <thomas@northwingdigital.com>\n"
+"Language-Team: Spanish (Spain)\n"
+"Language: es_ES\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Claude Code\n"
+"X-Domain: help_docs\n"
+
+#. Post Type General Name
+#: inc/class-help-docs.php:44
+msgctxt "Post Type General Name"
+msgid "Help Docs"
+msgstr "Documentos de Ayuda"
+
+#. Post Type Singular Name
+#: inc/class-help-docs.php:45
+msgctxt "Post Type Singular Name"
+msgid "Help Doc"
+msgstr "Documento de Ayuda"
+
+#: inc/class-help-docs.php:46
+#: inc/class-help-docs.php:47
+msgid "Documentation"
+msgstr "Documentación"
+
+#: inc/class-help-docs.php:48
+msgid "Item Archives"
+msgstr "Archivos de elementos"
+
+#: inc/class-help-docs.php:49
+msgid "Item Attributes"
+msgstr "Atributos del elemento"
+
+#: inc/class-help-docs.php:50
+msgid "Parent Item:"
+msgstr "Elemento padre:"
+
+#: inc/class-help-docs.php:51
+msgid "All Items"
+msgstr "Todos los elementos"
+
+#: inc/class-help-docs.php:52
+msgid "Add New Item"
+msgstr "Agregar nuevo elemento"
+
+#: inc/class-help-docs.php:53
+msgid "Add New"
+msgstr "Agregar nuevo"
+
+#: inc/class-help-docs.php:54
+msgid "New Item"
+msgstr "Nuevo elemento"
+
+#: inc/class-help-docs.php:55
+msgid "Edit Item"
+msgstr "Editar elemento"
+
+#: inc/class-help-docs.php:56
+msgid "Update Item"
+msgstr "Actualizar elemento"
+
+#: inc/class-help-docs.php:57
+msgid "View Item"
+msgstr "Ver elemento"
+
+#: inc/class-help-docs.php:58
+msgid "View Items"
+msgstr "Ver elementos"
+
+#: inc/class-help-docs.php:59
+msgid "Search Item"
+msgstr "Buscar elemento"
+
+#: inc/class-help-docs.php:60
+msgid "Not found"
+msgstr "No encontrado"
+
+#: inc/class-help-docs.php:61
+msgid "Not found in Trash"
+msgstr "No encontrado en la papelera"
+
+#: inc/class-help-docs.php:62
+msgid "Featured Image"
+msgstr "Imagen destacada"
+
+#: inc/class-help-docs.php:63
+msgid "Set featured image"
+msgstr "Establecer imagen destacada"
+
+#: inc/class-help-docs.php:64
+msgid "Remove featured image"
+msgstr "Eliminar imagen destacada"
+
+#: inc/class-help-docs.php:65
+msgid "Use as featured image"
+msgstr "Usar como imagen destacada"
+
+#: inc/class-help-docs.php:66
+msgid "Insert into item"
+msgstr "Insertar en el elemento"
+
+#: inc/class-help-docs.php:67
+msgid "Uploaded to this item"
+msgstr "Subido a este elemento"
+
+#: inc/class-help-docs.php:68
+msgid "Items list"
+msgstr "Lista de elementos"
+
+#: inc/class-help-docs.php:69
+msgid "Items list navigation"
+msgstr "Navegación de lista de elementos"
+
+#: inc/class-help-docs.php:70
+msgid "Filter items list"
+msgstr "Filtrar lista de elementos"
+
+#: inc/class-help-docs.php:73
+msgid "Help Docs"
+msgstr "Documentos de Ayuda"
+
+#: inc/class-help-docs.php:74
+msgid "Your site's help documentation"
+msgstr "La documentación de ayuda de tu sitio"
+
+#: inc/class-help-docs.php:133
+#: inc/class-help-docs.php:189
+#: inc/class-help-docs.php:222
+#: inc/class-help-docs.php:289
+msgid "Insufficient permissions"
+msgstr "Permisos insuficientes"
+
+#: inc/class-help-docs.php:139
+msgid "Welcome To"
+msgstr "Bienvenido a"
+
+#: inc/class-help-docs.php:146
+#: inc/class-help-docs.php:196
+msgid "New Help Doc"
+msgstr "Nuevo documento de ayuda"
+
+#: inc/class-help-docs.php:171
+msgid "No help documents found."
+msgstr "No se encontraron documentos de ayuda."
+
+#: inc/class-help-docs.php:196
+msgid "Back to Help Docs list"
+msgstr "Volver a la lista de documentos de ayuda"
+
+#: inc/class-help-docs.php:196
+msgid "Back to Help Docs"
+msgstr "Volver a los documentos de ayuda"
+
+#: inc/class-help-docs.php:196
+msgid "Create a new Help Doc"
+msgstr "Crear un nuevo documento de ayuda"
+
+#: inc/class-help-docs.php:204
+msgid "Edit: %s"
+msgstr "Editar: %s"
+
+#: inc/class-help-docs.php:204
+msgid "Edit"
+msgstr "Editar"
+
+#: inc/class-help-docs.php:206
+msgid "Content not found."
+msgstr "Contenido no encontrado."
+
+#: inc/class-help-docs.php:209
+msgid "Sorry. No help document found."
+msgstr "Lo sentimos. No se encontró ningún documento de ayuda."
+
+#: inc/class-help-docs.php:229
+msgid "Help Docs Settings"
+msgstr "Configuración de documentos de ayuda"
+
+#: inc/class-help-docs.php:235
+msgid "Settings saved successfully!"
+msgstr "¡Configuración guardada con éxito!"
+
+#: inc/class-help-docs.php:246
+msgid "Page Heading"
+msgstr "Encabezado de página"
+
+#: inc/class-help-docs.php:254
+msgid "Help Docs page heading."
+msgstr "Encabezado de la página de documentos de ayuda."
+
+#: inc/class-help-docs.php:259
+msgid "Enable Gutenberg Editor"
+msgstr "Habilitar editor Gutenberg"
+
+#: inc/class-help-docs.php:269
+msgid "Enable the Gutenberg block editor for Help Docs"
+msgstr "Habilitar el editor de bloques Gutenberg para los documentos de ayuda"
+
+#: inc/class-help-docs.php:271
+msgid "When enabled, uses the Gutenberg block editor. When disabled, uses the classic editor."
+msgstr "Cuando está habilitado, usa el editor de bloques Gutenberg. Cuando está deshabilitado, usa el editor clásico."
+
+#: inc/class-help-docs.php:278
+msgid "Save Settings"
+msgstr "Guardar configuración"
+
+#: inc/class-help-docs.php:293
+msgid "Security check failed"
+msgstr "La verificación de seguridad falló"
+
+#: inc/class-help-docs.php:390
+msgid "You do not have permission to access this resource."
+msgstr "No tienes permiso para acceder a este recurso."
+
+#: inc/class-help-docs.php:450
+msgid "#%d (no title)"
+msgstr "#%d (sin título)"
