@@ -39,8 +39,8 @@ For questions, issues, or feature requests, please reach out through GitHub.
 ## System Requirements
 
 - **WordPress:** 6.0 or greater
-- **PHP:** 7.4 or greater
-- **Database:** MySQL 5.6 or greater OR MariaDB 10.1 or greater
+- **PHP:** 8.0 or greater
+- **Database:** MySQL 8.0 or greater OR MariaDB 10.6 or greater
 - **HTTPS:** Required for admin pages (enforce at site/server level)
 
 ### Release Notes
@@ -49,7 +49,7 @@ For questions, issues, or feature requests, please reach out through GitHub.
 
 - Version 0.3
 - Improved documentation
-- Dropped PHP requirement to 7.4 for better compatibility.
+- Raised PHP requirement to 8.0+, MySQL to 8.0+, and MariaDB to 10.6+ to drop support for insecure, end-of-life versions.
 - Updated post status' to be private.
 - Updated some internal strings.
 

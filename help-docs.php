@@ -9,7 +9,7 @@
  * Author URI: https://www.twistermc.com
  * Text Domain: help_docs
  * Requires WordPress: 6.0
- * Requires PHP: 7.4
+ * Requires PHP: 8.0
  * Requires: MySQL 8.0+, MariaDB 10.6+
  */
 
@@ -42,14 +42,6 @@ add_action( 'init', 'add_custom_post_type', 0 );
  */
 function help_docs_admin_menu() {
 	Help_Docs::help_docs_admin_menu();
-	// Hide the detail page submenu with CSS instead of removing it
-	add_action( 'admin_head', function() {
-		echo '<style>
-			.wp-submenu a[href*="help-docs-info.php"] {
-				display: none !important;
-			}
-		</style>';
-	});
 }
 add_action( 'admin_menu', 'help_docs_admin_menu' );
 
@@ -97,11 +89,10 @@ function help_docs_save_settings() {
 	$enable_gutenberg = isset( $_POST['help_docs_enable_gutenberg'] ) ? true : false;
 	update_option( 'help_docs_enable_gutenberg', $enable_gutenberg );
 
-	// Flush rewrite rules to ensure post type changes take effect
-	flush_rewrite_rules();
+	// Store a short-lived flag so the settings page can show a success notice.
+	set_transient( 'help_docs_settings_saved_' . get_current_user_id(), true, 60 );
 
-	// Redirect back to settings page with success message
-	wp_redirect( add_query_arg( 'updated', 'true', admin_url( 'admin.php?page=help-docs-settings' ) ) );
+	wp_redirect( admin_url( 'admin.php?page=help-docs-settings' ) );
 	exit;
 }
 add_action( 'admin_post_help_docs_save_settings', 'help_docs_save_settings' );
@@ -141,6 +132,9 @@ function help_docs_add_style( $hook ) {
 
 	// Plugin admin styles for list/detail pages
 	wp_enqueue_style( 'help-docs-style', plugin_dir_url( __FILE__ ) . 'style/style.css', array(), filemtime( plugin_dir_path( __FILE__ ) . 'style/style.css' ) );
+
+	// Hide the detail-page submenu link via the enqueue system rather than a raw echo.
+	wp_add_inline_style( 'help-docs-style', '.wp-submenu a[href*="help-docs-info.php"] { display: none !important; }' );
 
 	// When viewing Help Docs detail page in admin, enqueue core block styles
 	// so block content (Gutenberg) is rendered correctly outside the block editor.
@@ -197,22 +191,13 @@ function help_docs_restrict_rest_auth( $result ) {
         // Match '/wp/v2/help_docs' or '/wp/v2/help_docs/...'
         if ( preg_match( '#^/wp/v2/help_docs(?:/|$)#', $route ) ) {
 
-            // Not logged in → 401
-            if ( ! is_user_logged_in() ) {
+            // Block unauthenticated requests and requests without read capability.
+            // Use a single generic message for both cases to avoid user enumeration.
+            if ( ! is_user_logged_in() || ! current_user_can( 'read' ) ) {
                 return new WP_Error(
                     'rest_forbidden',
-                    'Authentication required to access this resource.',
+                    esc_html__( 'You do not have permission to access this resource.', 'help_docs' ),
                     array( 'status' => rest_authorization_required_code() )
-                );
-            }
-
-            // Logged in but doesn't have admin access → 403
-            // 'read' is a broad capability that indicates WP admin access for typical installs.
-            if ( ! current_user_can( 'read' ) ) {
-                return new WP_Error(
-                    'rest_forbidden',
-                    'You do not have permission to access this resource.',
-                    array( 'status' => 403 )
                 );
             }
         }

@@ -140,6 +140,7 @@ class Help_Docs {
 				'orderby'        => 'title',
 				'order'          => 'ASC',
 				'post_status'    => array( 'publish', 'draft', 'pending', 'private' ),
+				'no_found_rows'  => true,
 			) );
 
 			if ( $posts ) {
@@ -176,9 +177,9 @@ class Help_Docs {
 			echo '<p><a href="' . esc_url( admin_url( 'admin.php?page=help-docs.php' ) ) . '" class="button button-large">' . esc_html__( '< Back', 'help_docs' ) . '</a> <a href="' . esc_url( admin_url( 'post-new.php?post_type=help_docs' ) ) . '" class="button button-large">' . esc_html__( 'New Help Doc', 'help_docs' ) . '</a></p>';
 			echo '<div class="entry-content">';
 			if ( isset( $_GET['id'] ) ) {
-				$id = absint( $_GET['id'] );
+				$id   = absint( $_GET['id'] );
 				$post = get_post( $id );
-				if ( $post ) {
+				if ( $post && 'help_docs' === $post->post_type ) {
 					echo '<h1>' . esc_html( get_the_title( $id ) ) . '</h1>';
 					echo wp_kses_post( apply_filters( 'the_content', $post->post_content ) );
 					echo '<a href="' . esc_url( get_edit_post_link( $id ) ) . '" class="button button-large">' . esc_html__( 'Edit', 'help_docs' ) . '</a>';
@@ -210,7 +211,9 @@ class Help_Docs {
 		<div class="help-docs-wrapper">
 			<h2><?php esc_html_e( 'Help Docs Settings', 'help_docs' ); ?></h2>
 			<hr/>
-			<?php if ( isset( $_GET['updated'] ) && 'true' === sanitize_key( wp_unslash( $_GET['updated'] ) ) ) : ?>
+			<?php if ( get_transient( 'help_docs_settings_saved_' . get_current_user_id() ) ) :
+				delete_transient( 'help_docs_settings_saved_' . get_current_user_id() );
+			?>
 				<div class="notice notice-success is-dismissible">
 					<p><?php esc_html_e( 'Settings saved successfully!', 'help_docs' ); ?></p>
 				</div>

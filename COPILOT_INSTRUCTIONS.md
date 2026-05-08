@@ -40,7 +40,7 @@ Performance & Scalability
 
 Modern PHP & Code Quality
 
-- Follow WordPress recommended PHP minimums; for this project the minimum supported PHP version is **8.3 or greater**. Use modern language features where compatible (typed properties, union types, readonly properties, attributes, and return types) but ensure CI tests across all supported PHP versions.
+- Follow WordPress recommended PHP minimums; for this project the minimum supported PHP version is **8.0 or greater**. Use modern language features where compatible (typed properties, union types, readonly properties, attributes, and return types) but ensure CI tests across all supported PHP versions.
 - Prefer object-oriented design and dependency injection for testability. Avoid global state and excessive procedural helper functions.
 - Use namespaces where appropriate, consistent with WordPress conventions for plugin code.
 - Add comprehensive PHPDoc, use `@since` tags and return types where possible; consider `declare( strict_types=1 );` in internal modules where safe.
@@ -93,10 +93,10 @@ Testing & CI
 
 Compatibility
 
-- Follow WordPress recommended minimums for platform requirements. This plugin **requires PHP 8.3 or greater**.
+- Follow WordPress recommended minimums for platform requirements. This plugin **requires PHP 8.0 or greater**.
 - Database: require **MySQL 8.0 or greater** OR **MariaDB 10.6 or greater**.
 - HTTPS: this plugin is admin-only and **requires HTTPS support**; document that admin pages must be served over HTTPS and recommend enforcing HTTPS at the site/server level. Ensure code uses `is_ssl()` where relevant and sets secure cookie flags.
-- Document minimum requirements in the plugin header (`Requires PHP: 8.3`) and `README.md` so site admins and CI know expected environments.
+- Document minimum requirements in the plugin header (`Requires PHP: 8.0`) and `README.md` so site admins and CI know expected environments.
 - Test against the latest two major WordPress releases and all supported PHP versions. When proposing breaking changes, clearly state required minimum WP/PHP/DB versions and provide migration steps.
 
 Examples (do / don't)
