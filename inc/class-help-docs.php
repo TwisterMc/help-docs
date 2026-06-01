@@ -5,7 +5,7 @@
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
-	exit;
+    exit;
 }
 
 /**
@@ -14,461 +14,445 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class Help_Docs {
 
-	/**
-	 * Register all hooks and filters.
-	 */
-	public static function init(): void {
-		add_action( 'init', array( self::class, 'add_custom_post_type' ), 0 );
-		add_action( 'admin_menu', array( self::class, 'help_docs_admin_menu' ) );
-		add_action( 'admin_post_help_docs_save_settings', array( self::class, 'save_settings' ) );
-		add_filter( 'default_post_status', array( self::class, 'default_post_status' ), 10, 3 );
-		add_filter( 'wp_insert_post_data', array( self::class, 'force_private_status' ), 10, 2 );
-		add_action( 'admin_enqueue_scripts', array( self::class, 'add_style' ) );
-		add_action( 'init', array( self::class, 'maybe_add_rest_auth' ), 20 );
-		add_action( 'save_post_help_docs', array( self::class, 'invalidate_post_cache' ) );
-		add_action( 'delete_post', array( self::class, 'invalidate_post_cache' ) );
-	}
+    /**
+     * Capability required to access Help Docs screens.
+     */
+    private const HELP_DOCS_VIEW_CAP = 'edit_posts';
 
-	/**
-	 * Get admin page heading.
-	 */
-	public static function get_help_docs_page_heading(): string {
-		return get_option( 'help_docs_page_heading', 'Help Docs' );
-	}
+    /**
+     * Determine whether the current user can view a Help Doc by status.
+     */
+    private static function user_can_view_help_doc( WP_Post $post ): bool {
+        if ( ! current_user_can( self::HELP_DOCS_VIEW_CAP ) ) {
+            return false;
+        }
 
-	/**
-	 * Custom Post Type
-	 */
-	public static function add_custom_post_type(): void {
-		$labels = array(
-			'name'                  => _x( 'Help Docs', 'Post Type General Name', 'help_docs' ),
-			'singular_name'         => _x( 'Help Doc', 'Post Type Singular Name', 'help_docs' ),
-			'menu_name'             => __( 'Documentation', 'help_docs' ),
-			'name_admin_bar'        => __( 'Documentation', 'help_docs' ),
-			'archives'              => __( 'Item Archives', 'help_docs' ),
-			'attributes'            => __( 'Item Attributes', 'help_docs' ),
-			'parent_item_colon'     => __( 'Parent Item:', 'help_docs' ),
-			'all_items'             => __( 'All Items', 'help_docs' ),
-			'add_new_item'          => __( 'Add New Item', 'help_docs' ),
-			'add_new'               => __( 'Add New', 'help_docs' ),
-			'new_item'              => __( 'New Item', 'help_docs' ),
-			'edit_item'             => __( 'Edit Item', 'help_docs' ),
-			'update_item'           => __( 'Update Item', 'help_docs' ),
-			'view_item'             => __( 'View Item', 'help_docs' ),
-			'view_items'            => __( 'View Items', 'help_docs' ),
-			'search_items'          => __( 'Search Item', 'help_docs' ),
-			'not_found'             => __( 'Not found', 'help_docs' ),
-			'not_found_in_trash'    => __( 'Not found in Trash', 'help_docs' ),
-			'featured_image'        => __( 'Featured Image', 'help_docs' ),
-			'set_featured_image'    => __( 'Set featured image', 'help_docs' ),
-			'remove_featured_image' => __( 'Remove featured image', 'help_docs' ),
-			'use_featured_image'    => __( 'Use as featured image', 'help_docs' ),
-			'insert_into_item'      => __( 'Insert into item', 'help_docs' ),
-			'uploaded_to_this_item' => __( 'Uploaded to this item', 'help_docs' ),
-			'items_list'            => __( 'Items list', 'help_docs' ),
-			'items_list_navigation' => __( 'Items list navigation', 'help_docs' ),
-			'filter_items_list'     => __( 'Filter items list', 'help_docs' ),
-		);
-		$args   = array(
-			'label'               => __( 'Help Docs', 'help_docs' ),
-			'description'         => __( 'Your site\'s help documentation', 'help_docs' ),
-			'labels'              => $labels,
-			'hierarchical'        => true,
-			'supports'            => array( 'title', 'editor', 'page-attributes' ),
-			'public'              => false,
-			'show_ui'             => true,
-			'show_in_menu'        => false,
-			'menu_position'       => 5,
-			'show_in_admin_bar'   => true,
-			'show_in_nav_menus'   => true,
-			'can_export'          => true,
-			'has_archive'         => true,
-			'exclude_from_search' => true,
-			'publicly_queryable'  => false,
-			'capability_type'     => 'page',
-			'show_in_rest'        => (bool) get_option( 'help_docs_enable_gutenberg', false ),
-			'rest_base'           => 'help_docs',
-		);
-		register_post_type( 'help_docs', $args );
-	}
+        if ( 'help_docs' !== $post->post_type || 'trash' === $post->post_status ) {
+            return false;
+        }
 
-	/**
-	 * Add Admin Menus
-	 */
-	public static function help_docs_admin_menu(): void {
-		add_menu_page(
-			'Help Docs',
-			'Help Docs',
-			'read',
-			'help-docs.php',
-			array( self::class, 'help_docs_admin_page' ),
-			'dashicons-editor-help',
-			3
-		);
-		add_submenu_page(
-			'help-docs.php',
-			'Settings',
-			'Settings',
-			'manage_options',
-			'help-docs-settings',
-			array( self::class, 'help_docs_settings' )
-		);
-		add_submenu_page(
-			'help-docs.php',
-			'Help Doc Details',
-			'Help Doc Details',
-			'read',
-			'help-docs-info.php',
-			array( self::class, 'help_docs_admin_page_info' )
-		);
-	}
+        // Fix 1: Ensure private posts strictly respect user ownership and capabilities
+        if ( 'private' === $post->post_status ) {
+            return current_user_can( 'read_post', $post->ID );
+        }
 
-	/**
-	 * Help Docs Admin Main Page
-	 */
-	public static function help_docs_admin_page(): void {
-		$page_heading = self::get_help_docs_page_heading();
+        if ( 'publish' === $post->post_status ) {
+            return true;
+        }
 
-		if ( ! current_user_can( 'read' ) ) {
-			wp_die( esc_html__( 'Insufficient permissions', 'help_docs' ) );
-		}
-		?>
-		<div class="help-docs-wrapper">
-			<h2><?php
-				if ( 'Help Docs' === $page_heading ) {
-					echo esc_html__( 'Welcome To', 'help_docs' ) . ' ' . esc_html( $page_heading );
-				} else {
-					echo esc_html( $page_heading );
-				}
-			?></h2>
-			<hr/>
-			<?php
-			echo '<p><a href="' . esc_url( admin_url( 'post-new.php?post_type=help_docs' ) ) . '" class="button button-large">' . esc_html__( 'New Help Doc', 'help_docs' ) . '</a></p>';
-			echo '<ul class="help_pages">';
+        if ( in_array( $post->post_status, array( 'draft', 'pending', 'future', 'auto-draft' ), true ) ) {
+            return current_user_can( 'edit_post', $post->ID );
+        }
 
-			$cache_key = 'help_docs_admin_list';
-			$posts = get_transient( $cache_key );
+        return false;
+    }
 
-			if ( false === $posts ) {
-				$posts = get_posts( array(
-					'post_type'      => 'help_docs',
-					'posts_per_page' => -1,
-					'orderby'        => 'title',
-					'order'          => 'ASC',
-					'post_status'    => array( 'publish', 'draft', 'pending', 'private' ),
-					'no_found_rows'  => true,
-				) );
-				set_transient( $cache_key, $posts, HOUR_IN_SECONDS );
-			}
+    /**
+     * Register all hooks and filters.
+     */
+    public static function init(): void {
+        add_action( 'init', array( self::class, 'add_custom_post_type' ), 0 );
+        add_action( 'admin_menu', array( self::class, 'help_docs_admin_menu' ) );
+        add_action( 'admin_post_help_docs_save_settings', array( self::class, 'save_settings' ) );
+        add_filter( 'default_post_status', array( self::class, 'default_post_status' ), 10, 3 );
+        add_filter( 'wp_insert_post_data', array( self::class, 'force_private_status' ), 10, 2 );
+        add_action( 'admin_enqueue_scripts', array( self::class, 'add_style' ) );
+        add_action( 'init', array( self::class, 'maybe_add_rest_auth' ), 20 );
+        
+        // Use transition_post_status for reliable cache invalidation
+        add_action( 'transition_post_status', array( self::class, 'invalidate_post_cache_on_transition' ), 10, 3 );
+    }
 
-			if ( $posts ) {
-				foreach ( $posts as $post ) {
-					$link  = esc_url( add_query_arg( array( 'page' => 'help-docs-info.php', 'id' => $post->ID ), admin_url( 'admin.php' ) ) );
-					$title = esc_html( $post->post_title );
-					echo '<li><a href="' . $link . '">' . $title . '</a></li>';
-				}
-			} else {
-				echo '<li>' . esc_html__( 'No help documents found.', 'help_docs' ) . '</li>';
-			}
+    /**
+     * Get admin page heading.
+     */
+    public static function get_help_docs_page_heading(): string {
+        return get_option( 'help_docs_page_heading', 'Help Docs' );
+    }
 
-			echo '</ul>';
-			?>
-		</div>
-		<?php
-	}
+    /**
+     * Custom Post Type
+     */
+    public static function add_custom_post_type(): void {
+        $labels = array(
+            'name'                  => _x( 'Help Docs', 'Post Type General Name', 'help_docs' ),
+            'singular_name'         => _x( 'Help Doc', 'Post Type Singular Name', 'help_docs' ),
+            'menu_name'             => __( 'Documentation', 'help_docs' ),
+            'name_admin_bar'        => __( 'Documentation', 'help_docs' ),
+            'archives'              => __( 'Item Archives', 'help_docs' ),
+            'attributes'            => __( 'Item Attributes', 'help_docs' ),
+            'parent_item_colon'     => __( 'Parent Item:', 'help_docs' ),
+            'all_items'             => __( 'All Items', 'help_docs' ),
+            'add_new_item'          => __( 'Add New Item', 'help_docs' ),
+            'add_new'               => __( 'Add New', 'help_docs' ),
+            'new_item'              => __( 'New Item', 'help_docs' ),
+            'edit_item'             => __( 'Edit Item', 'help_docs' ),
+            'update_item'           => __( 'Update Item', 'help_docs' ),
+            'view_item'             => __( 'View Item', 'help_docs' ),
+            'view_items'            => __( 'View Items', 'help_docs' ),
+            'search_items'          => __( 'Search Item', 'help_docs' ),
+            'not_found'             => __( 'Not found', 'help_docs' ),
+            'not_found_in_trash'    => __( 'Not found in Trash', 'help_docs' ),
+            'featured_image'        => __( 'Featured Image', 'help_docs' ),
+            'set_featured_image'    => __( 'Set featured image', 'help_docs' ),
+            'remove_featured_image' => __( 'Remove featured image', 'help_docs' ),
+            'use_featured_image'    => __( 'Use as featured image', 'help_docs' ),
+            'insert_into_item'      => __( 'Insert into item', 'help_docs' ),
+            'uploaded_to_this_item' => __( 'Uploaded to this item', 'help_docs' ),
+            'items_list'            => __( 'Items list', 'help_docs' ),
+            'items_list_navigation' => __( 'Items list navigation', 'help_docs' ),
+            'filter_items_list'     => __( 'Filter items list', 'help_docs' ),
+        );
+        $args   = array(
+            'label'               => __( 'Help Docs', 'help_docs' ),
+            'description'         => __( 'Your site\'s help documentation', 'help_docs' ),
+            'labels'              => $labels,
+            'hierarchical'        => true,
+            'supports'            => array( 'title', 'editor', 'page-attributes' ),
+            'public'              => false,
+            'show_ui'             => true,
+            'show_in_menu'        => false,
+            'menu_position'       => 5,
+            'show_in_admin_bar'   => true,
+            'show_in_nav_menus'   => true,
+            'can_export'          => true,
+            'has_archive'         => true,
+            'exclude_from_search' => true,
+            'publicly_queryable'  => false,
+            'capability_type'     => 'page',
+            'map_meta_cap'        => true, // Fix 2: Essential to translate page capabilities properly
+            'show_in_rest'        => (bool) get_option( 'help_docs_enable_gutenberg', false ),
+            'rest_base'           => 'help_docs',
+        );
+        register_post_type( 'help_docs', $args );
+    }
 
-	/**
-	 * Help Page Details
-	 *
-	 * @var array $_GET is used to pass in the help document post id
-	 */
-	public static function help_docs_admin_page_info(): void {
-		$page_heading = self::get_help_docs_page_heading();
+    /**
+     * Add Admin Menus
+     */
+public static function help_docs_admin_menu(): void {
+        add_menu_page(
+            __( 'Help Docs', 'help_docs' ),
+            __( 'Help Docs', 'help_docs' ),
+            self::HELP_DOCS_VIEW_CAP,
+            'help-docs.php',
+            array( self::class, 'help_docs_admin_page' ),
+            'dashicons-editor-help',
+            3
+        );
+        add_submenu_page(
+            'help-docs.php',
+            __( 'Settings', 'help_docs' ),
+            __( 'Settings', 'help_docs' ),
+            'manage_options',
+            'help-docs-settings',
+            array( self::class, 'help_docs_settings' )
+        );
+        
+add_submenu_page(
+    'help-docs.php', 
+    __( 'Help Doc Details', 'help_docs' ),
+    __( 'Help Doc Details', 'help_docs' ),
+    self::HELP_DOCS_VIEW_CAP,
+    'help-docs-info.php',
+    array( self::class, 'help_docs_admin_page_info' )
+);
 
-		if ( ! current_user_can( 'read' ) ) {
-			wp_die( esc_html__( 'Insufficient permissions', 'help_docs' ) );
-		}
-		?>
-		<div class="help-docs-wrapper">
-			<h2><?php echo esc_html( $page_heading ); ?></h2>
-			<hr/>
-			<?php
-			echo '<p><a href="' . esc_url( admin_url( 'admin.php?page=help-docs.php' ) ) . '" class="button button-large" aria-label="' . esc_attr( __( 'Back to Help Docs list', 'help_docs' ) ) . '">' . esc_html__( 'Back to Help Docs', 'help_docs' ) . '</a> <a href="' . esc_url( admin_url( 'post-new.php?post_type=help_docs' ) ) . '" class="button button-large" aria-label="' . esc_attr( __( 'Create a new Help Doc', 'help_docs' ) ) . '">' . esc_html__( 'New Help Doc', 'help_docs' ) . '</a></p>';
-			echo '<div class="entry-content">';
-			if ( isset( $_GET['id'] ) ) {
-				$id   = absint( $_GET['id'] );
-				$post = get_post( $id );
-				if ( $post && 'help_docs' === $post->post_type ) {
-					echo '<h1>' . esc_html( get_the_title( $id ) ) . '</h1>';
-					echo wp_kses_post( apply_filters( 'the_content', $post->post_content ) );
-					echo '<a href="' . esc_url( get_edit_post_link( $id ) ) . '" class="button button-large" aria-label="' . esc_attr( sprintf( __( 'Edit: %s', 'help_docs' ), get_the_title( $id ) ) ) . '">' . esc_html__( 'Edit', 'help_docs' ) . '</a>';
-				} else {
-					echo esc_html__( 'Content not found.', 'help_docs' );
-				}
-			} else {
-				echo esc_html__( 'Sorry. No help document found.', 'help_docs' );
-			}
-			echo '</div>';
-			?>
-		</div>
-		<?php
-	}
+// 2. Hide it from the layout view using a native structural wrapper
+add_action( 'admin_head', function() {
+    remove_submenu_page( 'help-docs.php', 'help-docs-info.php' );
+});
+    }
 
-	/**
-	 * Help Docs Settings
-	 */
-	public static function help_docs_settings(): void {
-		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( esc_html__( 'Insufficient permissions', 'help_docs' ) );
-		}
+    /**
+     * Help Docs Admin Main Page
+     */
+    public static function help_docs_admin_page(): void {
+        if ( ! current_user_can( self::HELP_DOCS_VIEW_CAP ) ) {
+            wp_die( esc_html__( 'Insufficient permissions', 'help_docs' ) );
+        }
 
-		$current_heading  = get_option( 'help_docs_page_heading', 'Help Docs' );
-		$enable_gutenberg = get_option( 'help_docs_enable_gutenberg', false );
-		?>
-		<div class="help-docs-wrapper">
-			<h2><?php esc_html_e( 'Help Docs Settings', 'help_docs' ); ?></h2>
-			<hr/>
-			<?php if ( get_transient( 'help_docs_settings_saved_' . get_current_user_id() ) ) :
-				delete_transient( 'help_docs_settings_saved_' . get_current_user_id() );
-			?>
-				<div class="notice notice-success is-dismissible">
-					<p><?php esc_html_e( 'Settings saved successfully!', 'help_docs' ); ?></p>
-				</div>
-			<?php endif; ?>
-			<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
-				<?php wp_nonce_field( 'help_docs_save_settings', 'help_docs_settings_nonce' ); ?>
-				<input type="hidden" name="action" value="help_docs_save_settings" />
+        $page_heading = self::get_help_docs_page_heading();
+        ?>
+        <div class="wrap help-docs-wrapper">
+            <h1 class="wp-heading-inline"><?php
+                if ( 'Help Docs' === $page_heading ) {
+                    echo esc_html__( 'Welcome To Help Docs', 'help_docs' );
+                } else {
+                    echo esc_html( $page_heading );
+                }
+            ?></h1>
+            <hr class="wp-header-end"/>
+            <?php
+            echo '<p><a href="' . esc_url( admin_url( 'post-new.php?post_type=help_docs' ) ) . '" class="button button-primary">' . esc_html__( 'New Help Doc', 'help_docs' ) . '</a></p>';
+            echo '<ul class="help_pages">';
 
-				<table class="form-table" role="presentation">
-					<tbody>
-						<tr>
-							<th scope="row">
-								<label for="help_docs_page_heading"><?php esc_html_e( 'Page Heading', 'help_docs' ); ?></label>
-							</th>
-							<td>
-								<input type="text"
-									id="help_docs_page_heading"
-									name="help_docs_page_heading"
-									value="<?php echo esc_attr( $current_heading ); ?>"
-									class="regular-text" />
-								<p class="description"><?php esc_html_e( 'Help Docs page heading.', 'help_docs' ); ?></p>
-							</td>
-						</tr>
-						<tr>
-							<th scope="row">
-								<?php esc_html_e( 'Enable Gutenberg Editor', 'help_docs' ); ?>
-							</th>
-							<td>
-								<fieldset>
-									<label for="help_docs_enable_gutenberg">
-										<input type="checkbox"
-											id="help_docs_enable_gutenberg"
-											name="help_docs_enable_gutenberg"
-											value="1"
-											<?php checked( $enable_gutenberg, true ); ?> />
-										<?php esc_html_e( 'Enable the Gutenberg block editor for Help Docs', 'help_docs' ); ?>
-									</label>
-									<p class="description"><?php esc_html_e( 'When enabled, uses the Gutenberg block editor. When disabled, uses the classic editor.', 'help_docs' ); ?></p>
-								</fieldset>
-							</td>
-						</tr>
-					</tbody>
-				</table>
+            $cache_key = 'help_docs_admin_list';
+            $posts = get_transient( $cache_key );
 
-				<?php submit_button( __( 'Save Settings', 'help_docs' ) ); ?>
-			</form>
-		</div>
-		<?php
-	}
+            if ( false === $posts ) {
+                $posts = get_posts( array(
+                    'post_type'      => 'help_docs',
+                    'posts_per_page' => -1,
+                    'orderby'        => 'title',
+                    'order'          => 'ASC',
+                    'post_status'    => array( 'publish', 'draft', 'pending', 'private' ),
+                    'no_found_rows'  => true,
+                ) );
+                set_transient( $cache_key, $posts, HOUR_IN_SECONDS );
+            }
 
-	/**
-	 * Save settings handler.
-	 */
-	public static function save_settings(): void {
-		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( esc_html__( 'Insufficient permissions', 'help_docs' ) );
-		}
+            if ( $posts ) {
+                foreach ( $posts as $post ) {
+                    if ( ! self::user_can_view_help_doc( $post ) ) {
+                        continue;
+                    }
 
-		if ( ! isset( $_POST['help_docs_settings_nonce'] ) || ! wp_verify_nonce( $_POST['help_docs_settings_nonce'], 'help_docs_save_settings' ) ) {
-			wp_die( esc_html__( 'Security check failed', 'help_docs' ) );
-		}
+                    $link  = esc_url( add_query_arg( array( 'page' => 'help-docs-info.php', 'id' => $post->ID ), admin_url( 'admin.php' ) ) );
+                    
+                    // Fix 3: Gracefully handle structural display of untitled items
+                    $raw_title = ! empty( $post->post_title ) ? $post->post_title : sprintf( __( '(no title - ID: %d)', 'help_docs' ), $post->ID );
+                    $title     = esc_html( apply_filters( 'the_title', $raw_title, $post->ID ) );
+                    
+                    echo '<li><a href="' . $link . '">' . $title . '</a></li>';
+                }
+            } else {
+                echo '<li>' . esc_html__( 'No help documents found.', 'help_docs' ) . '</li>';
+            }
 
-		if ( isset( $_POST['help_docs_page_heading'] ) ) {
-			update_option( 'help_docs_page_heading', sanitize_text_field( $_POST['help_docs_page_heading'] ) );
-		}
+            echo '</ul>';
+            ?>
+        </div>
+        <?php
+    }
 
-		update_option( 'help_docs_enable_gutenberg', isset( $_POST['help_docs_enable_gutenberg'] ) );
+   /**
+     * Help Page Details
+     */
+    public static function help_docs_admin_page_info(): void {
+        if ( ! current_user_can( self::HELP_DOCS_VIEW_CAP ) ) {
+            wp_die( esc_html__( 'Insufficient permissions', 'help_docs' ) );
+        }
 
-		set_transient( 'help_docs_settings_saved_' . get_current_user_id(), true, 60 );
+        $page_heading = self::get_help_docs_page_heading();
+        ?>
+        <div class="wrap help-docs-wrapper">
+            <h1><?php echo esc_html( $page_heading ); ?></h1>
+            <hr class="wp-header-end"/>
+            <?php
+            echo '<p><a href="' . esc_url( admin_url( 'admin.php?page=help-docs.php' ) ) . '" class="button button-large" aria-label="' . esc_attr( __( 'Back to Help Docs list', 'help_docs' ) ) . '">' . esc_html__( 'Back to Help Docs', 'help_docs' ) . '</a> <a href="' . esc_url( admin_url( 'post-new.php?post_type=help_docs' ) ) . '" class="button button-large" aria-label="' . esc_attr( __( 'Create a new Help Doc', 'help_docs' ) ) . '">' . esc_html__( 'New Help Doc', 'help_docs' ) . '</a></p>';
+            echo '<div class="entry-content">';
+            
+            if ( isset( $_GET['id'] ) ) {
+                $id   = absint( wp_unslash( $_GET['id'] ) );
+                $post = get_post( $id );
+                
+                if ( $post && self::user_can_view_help_doc( $post ) ) {
+                    $raw_title = ! empty( $post->post_title ) ? $post->post_title : sprintf( __( '(no title - ID: %d)', 'help_docs' ), $post->ID );
+                    echo '<h1>' . esc_html( apply_filters( 'the_title', $raw_title, $post->ID ) ) . '</h1>';
+                    echo wp_kses_post( apply_filters( 'the_content', $post->post_content ) );
+                    
+                    if ( current_user_can( 'edit_post', $id ) ) {
+                        $edit_label = ! empty( $post->post_title ) ? get_the_title( $id ) : (string) $id;
+                        echo '<p><a href="' . esc_url( get_edit_post_link( $id ) ) . '" class="button button-large" aria-label="' . esc_attr( sprintf( __( 'Edit: %s', 'help_docs' ), $edit_label ) ) . '">' . esc_html__( 'Edit', 'help_docs' ) . '</a></p>';
+                    }
+                } else {
+                    echo esc_html__( 'Content not found.', 'help_docs' );
+                }
+            } else {
+                echo esc_html__( 'Sorry. No help document found.', 'help_docs' );
+            }
+            echo '</div>';
+            ?>
+        </div>
+        <?php
+    }
 
-		wp_redirect( admin_url( 'admin.php?page=help-docs-settings' ) );
-		exit;
-	}
+    /**
+     * Help Docs Settings
+     */
+    public static function help_docs_settings(): void {
+        if ( ! current_user_can( 'manage_options' ) ) {
+            wp_die( esc_html__( 'Insufficient permissions', 'help_docs' ) );
+        }
 
-	/**
-	 * Invalidate the admin list cache when help docs are saved or deleted.
-	 */
-	public static function invalidate_post_cache(): void {
-		delete_transient( 'help_docs_admin_list' );
-	}
+        $current_heading  = get_option( 'help_docs_page_heading', 'Help Docs' );
+        $enable_gutenberg = get_option( 'help_docs_enable_gutenberg', false );
+        ?>
+        <div class="wrap help-docs-wrapper">
+            <h1><?php esc_html_e( 'Help Docs Settings', 'help_docs' ); ?></h1>
+            <hr class="wp-header-end"/>
+            <?php if ( get_transient( 'help_docs_settings_saved_' . get_current_user_id() ) ) :
+                delete_transient( 'help_docs_settings_saved_' . get_current_user_id() );
+            ?>
+                <div class="notice notice-success is-dismissible">
+                    <p><?php esc_html_e( 'Settings saved successfully!', 'help_docs' ); ?></p>
+                </div>
+            <?php endif; ?>
+            <form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
+                <?php wp_nonce_field( 'help_docs_save_settings', 'help_docs_settings_nonce' ); ?>
+                <input type="hidden" name="action" value="help_docs_save_settings" />
 
-	/**
-	 * Set default status to private for new help_docs posts.
-	 */
-	public static function default_post_status( string $post_status, string $post_type, WP_Post $post ): string {
-		if ( 'help_docs' === $post_type && 'auto-draft' === $post_status ) {
-			return 'private';
-		}
-		return $post_status;
-	}
+                <table class="form-table" role="presentation">
+                    <tbody>
+                        <tr>
+                            <th scope="row">
+                                <label for="help_docs_page_heading"><?php esc_html_e( 'Page Heading', 'help_docs' ); ?></label>
+                            </th>
+                            <td>
+                                <input type="text"
+                                    id="help_docs_page_heading"
+                                    name="help_docs_page_heading"
+                                    value="<?php echo esc_attr( $current_heading ); ?>"
+                                    class="regular-text" />
+                                <p class="description"><?php esc_html_e( 'Help Docs page heading.', 'help_docs' ); ?></p>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">
+                                <?php esc_html_e( 'Enable Gutenberg Editor', 'help_docs' ); ?>
+                            </th>
+                            <td>
+                                <fieldset>
+                                    <label for="help_docs_enable_gutenberg">
+                                        <input type="checkbox"
+                                            id="help_docs_enable_gutenberg"
+                                            name="help_docs_enable_gutenberg"
+                                            value="1"
+                                            <?php checked( $enable_gutenberg, true ); ?> />
+                                        <?php esc_html_e( 'Enable the Gutenberg block editor for Help Docs', 'help_docs' ); ?>
+                                    </label>
+                                    <p class="description"><?php esc_html_e( 'When enabled, uses the Gutenberg block editor. When disabled, uses the classic editor.', 'help_docs' ); ?></p>
+                                </fieldset>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
 
-	/**
-	 * Force help_docs posts to always be private when saved.
-	 */
-	public static function force_private_status( array $data, array $postarr ): array {
-		if ( isset( $data['post_type'] ) && 'help_docs' === $data['post_type'] ) {
-			if ( 'publish' === $data['post_status'] ) {
-				$data['post_status'] = 'private';
-			}
-		}
-		return $data;
-	}
+                <?php submit_button( __( 'Save Settings', 'help_docs' ) ); ?>
+            </form>
+        </div>
+        <?php
+    }
 
-	/**
-	 * Enqueue admin styles on help-docs pages only.
-	 */
-	public static function add_style( string $hook ): void {
-		if ( false === stripos( $hook, 'help-docs' ) ) {
-			return;
-		}
+    /**
+     * Save settings handler.
+     */
+    public static function save_settings(): void {
+        if ( ! current_user_can( 'manage_options' ) ) {
+            wp_die( esc_html__( 'Insufficient permissions', 'help_docs' ) );
+        }
 
-		wp_enqueue_style( 'help-docs-style', HELP_DOCS_URL . 'style/style.css', array(), filemtime( HELP_DOCS_DIR . 'style/style.css' ) );
-		wp_add_inline_style( 'help-docs-style', '.wp-submenu a[href*="help-docs-info.php"] { display: none !important; }' );
+        if ( ! isset( $_POST['help_docs_settings_nonce'] ) || ! wp_verify_nonce( $_POST['help_docs_settings_nonce'], 'help_docs_save_settings' ) ) {
+            wp_die( esc_html__( 'Security check failed', 'help_docs' ) );
+        }
 
-		if ( isset( $_GET['page'] ) && 'help-docs-info.php' === $_GET['page'] ) {
-			$post_type_object = get_post_type_object( 'help_docs' );
-			if ( $post_type_object && ! empty( $post_type_object->show_in_rest ) ) {
-				if ( wp_style_is( 'wp-block-library', 'registered' ) ) {
-					wp_enqueue_style( 'wp-block-library' );
-				}
-				if ( wp_style_is( 'wp-block-library-theme', 'registered' ) ) {
-					wp_enqueue_style( 'wp-block-library-theme' );
-				}
-			}
-		}
-	}
+        if ( isset( $_POST['help_docs_page_heading'] ) ) {
+            update_option( 'help_docs_page_heading', sanitize_text_field( wp_unslash( $_POST['help_docs_page_heading'] ) ) );
+        }
 
-	/**
-	 * Restrict REST API access to the custom post type to logged-in users only.
-	 *
-	 * @param WP_Error|null|true $result Authentication result so far.
-	 * @return WP_Error|null|true
-	 */
-	public static function restrict_rest_auth( $result ) {
-		if ( ! empty( $result ) ) {
-			return $result;
-		}
+        $old_gutenberg_status = get_option( 'help_docs_enable_gutenberg', false );
+        $new_gutenberg_status = isset( $_POST['help_docs_enable_gutenberg'] );
 
-		try {
-			$server = rest_get_server();
+        update_option( 'help_docs_enable_gutenberg', $new_gutenberg_status );
 
-			if ( ! $server || ! method_exists( $server, 'get_current_request' ) ) {
-				return $result;
-			}
+        // Flush rewrite rules if REST visibility changes to prevent broken Gutenberg setups
+        if ( $old_gutenberg_status !== $new_gutenberg_status ) {
+            self::add_custom_post_type();
+            flush_rewrite_rules();
+        }
 
-			$request = $server->get_current_request();
-			if ( ! $request ) {
-				return $result;
-			}
+        set_transient( 'help_docs_settings_saved_' . get_current_user_id(), true, 60 );
 
-			$route = $request->get_route();
+        wp_safe_redirect( admin_url( 'admin.php?page=help-docs-settings' ) );
+        exit;
+    }
 
-			if ( preg_match( '#^/wp/v2/help_docs(?:/|$)#', $route ) ) {
-				if ( ! is_user_logged_in() || ! current_user_can( 'read' ) ) {
-					return new WP_Error(
-						'rest_forbidden',
-						esc_html__( 'You do not have permission to access this resource.', 'help_docs' ),
-						array( 'status' => rest_authorization_required_code() )
-					);
-				}
-			}
-		} catch ( Throwable $e ) {
-			return $result;
-		}
+    /**
+     * Clean cache anytime a post changes status.
+     */
+    public static function invalidate_post_cache_on_transition( string $new_status, string $old_status, WP_Post $post ): void {
+        if ( 'help_docs' === $post->post_type ) {
+            delete_transient( 'help_docs_admin_list' );
+        }
+    }
 
-		return $result;
-	}
+    /**
+     * Set default status to private for new help_docs posts.
+     */
+    public static function default_post_status( string $post_status, string $post_type, WP_Post $post ): string {
+        if ( 'help_docs' === $post_type && 'auto-draft' === $post_status ) {
+            return 'private';
+        }
+        return $post_status;
+    }
 
-	/**
-	 * Conditionally register REST auth filter after post type is registered.
-	 */
-	public static function maybe_add_rest_auth(): void {
-		$post_type_object = get_post_type_object( 'help_docs' );
-		if ( $post_type_object && ! empty( $post_type_object->show_in_rest ) ) {
-			add_filter( 'rest_authentication_errors', array( self::class, 'restrict_rest_auth' ) );
-		}
-	}
-}
+    /**
+     * Force help_docs posts to always be private when saved.
+     */
+    public static function force_private_status( array $data, array $postarr ): array {
+        if ( isset( $data['post_type'] ) && 'help_docs' === $data['post_type'] ) {
+            if ( 'publish' === $data['post_status'] ) {
+                $data['post_status'] = 'private';
+            }
+        }
+        return $data;
+    }
 
-/**
- * Help_Docs Walker Class
- * Used to modify the links as I'm not using the permalink structure.
- * via: https://gist.github.com/donchenko/4ac5f1380ae687f11bfd13f379531f60
- */
-class Help_Docs_Walker extends Walker_Page {
-	public function start_lvl( &$output, $depth = 0, $args = array() ) {
-		$indent  = str_repeat( "\t", $depth );
-		$output .= "\n$indent<ul class='parent'>\n";
-	}
+    /**
+     * Enqueue admin styles on help-docs pages only.
+     */
+    public static function add_style( string $hook ): void {
+        if ( false === stripos( $hook, 'help-docs' ) ) {
+            return;
+        }
 
-	public function start_el( &$output, $page, $depth = 0, $args = array(), $current_page = 0 ) {
-		$indent = $depth ? str_repeat( "\t", $depth ) : '';
+        wp_enqueue_style( 'help-docs-style', HELP_DOCS_URL . 'style/style.css', array(), filemtime( HELP_DOCS_DIR . 'style/style.css' ) );
 
-		$css_class = array( 'page_item', 'page-item-' . $page->ID );
+        $page = isset( $_GET['page'] ) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : '';
+        if ( 'help-docs-info.php' === $page ) {
+            $post_type_object = get_post_type_object( 'help_docs' );
+            if ( $post_type_object && ! empty( $post_type_object->show_in_rest ) ) {
+                if ( wp_style_is( 'wp-block-library', 'registered' ) ) {
+                    wp_enqueue_style( 'wp-block-library' );
+                }
+                if ( wp_style_is( 'wp-block-library-theme', 'registered' ) ) {
+                    wp_enqueue_style( 'wp-block-library-theme' );
+                }
+            }
+        }
+    }
 
-		if ( isset( $args['pages_with_children'][ $page->ID ] ) ) {
-			$css_class[] = 'page_item_has_children';
-		}
+    /**
+     * Restrict REST API access to the custom post type to logged-in users only.
+     */
+    public static function restrict_rest_auth( $result, $server, $request ) {
+        if ( ! is_null( $result ) ) {
+            return $result;
+        }
 
-		if ( ! empty( $current_page ) ) {
-			$_current_page = get_post( $current_page );
-			if ( in_array( $page->ID, (array) $_current_page->ancestors, true ) ) {
-				$css_class[] = 'current_page_ancestor';
-			}
-			if ( $page->ID === $current_page ) {
-				$css_class[] = 'current_page_item';
-			} elseif ( $_current_page && $page->ID === $_current_page->post_parent ) {
-				$css_class[] = 'current_page_parent';
-			}
-		} elseif ( get_option( 'page_for_posts' ) === $page->ID ) {
-			$css_class[] = 'current_page_parent';
-		}
+        $route = $request->get_route();
 
-		$css_classes = implode( ' ', apply_filters( 'page_css_class', $css_class, $page, $depth, $args, $current_page ) );
+        if ( preg_match( '#^/wp/v2/help_docs(?:/|$)#', $route ) ) {
+            if ( ! is_user_logged_in() || ! current_user_can( self::HELP_DOCS_VIEW_CAP ) ) {
+                return new WP_Error(
+                    'rest_forbidden',
+                    esc_html__( 'You do not have permission to access this resource.', 'help_docs' ),
+                    array( 'status' => rest_authorization_required_code() )
+                );
+            }
+        }
 
-		if ( '' === $page->post_title ) {
-			$page->post_title = sprintf( __( '#%d (no title)', 'help_docs' ), $page->ID );
-		}
+        return $result;
+    }
 
-		$args['link_before'] = empty( $args['link_before'] ) ? '' : $args['link_before'];
-		$args['link_after']  = empty( $args['link_after'] ) ? '' : $args['link_after'];
-
-		$link  = esc_url( add_query_arg( array( 'page' => 'help-docs-info.php', 'id' => $page->ID ), admin_url( 'admin.php' ) ) );
-		$title = esc_html( apply_filters( 'the_title', $page->post_title, $page->ID ) );
-
-		$output .= $indent . sprintf(
-			'<li class="%s"><a href="%s">%s%s%s</a>',
-			esc_attr( $css_classes ),
-			$link,
-			$args['link_before'],
-			$title,
-			$args['link_after']
-		);
-
-		if ( ! empty( $args['show_date'] ) ) {
-			$time        = 'modified' === $args['show_date'] ? $page->post_modified : $page->post_date;
-			$date_format = empty( $args['date_format'] ) ? '' : $args['date_format'];
-			$output     .= ' ' . mysql2date( $date_format, $time );
-		}
-	}
+    /**
+     * Conditionally register REST auth filter after post type is registered.
+     */
+    public static function maybe_add_rest_auth(): void {
+        $post_type_object = get_post_type_object( 'help_docs' );
+        if ( $post_type_object && ! empty( $post_type_object->show_in_rest ) ) {
+            add_filter( 'rest_pre_dispatch', array( self::class, 'restrict_rest_auth' ), 10, 3 );
+        }
+    }
 }

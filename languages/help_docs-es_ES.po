@@ -131,6 +131,14 @@ msgid "Help Docs"
 msgstr "Documentos de Ayuda"
 
 #: inc/class-help-docs.php:74
+msgid "Settings"
+msgstr "Ajustes"
+
+#: inc/class-help-docs.php:75
+msgid "Help Doc Details"
+msgstr "Detalles del documento de ayuda"
+
+#: inc/class-help-docs.php:74
 msgid "Your site's help documentation"
 msgstr "La documentación de ayuda de tu sitio"
 
