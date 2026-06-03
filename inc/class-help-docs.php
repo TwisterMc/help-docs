@@ -386,8 +386,10 @@ add_action( 'admin_head', function() {
                 $posts = get_posts( array(
                     'post_type'      => 'help_docs',
                     'posts_per_page' => -1,
-                    'orderby'        => 'title',
-                    'order'          => 'ASC',
+                    'orderby'        => array(
+                        'menu_order' => 'ASC',
+                        'title'      => 'ASC',
+                    ),
                     'post_status'    => array( 'publish', 'draft', 'pending', 'private' ),
                     'no_found_rows'  => true,
                 ) );
