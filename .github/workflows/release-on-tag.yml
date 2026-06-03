@@ -22,8 +22,7 @@ jobs:
           set -euo pipefail
 
           PLUGIN_DIR="${GITHUB_REPOSITORY#*/}"
-          TAG_NAME="${GITHUB_REF_NAME}"
-          ZIP_NAME="${PLUGIN_DIR}-${TAG_NAME}.zip"
+          ZIP_NAME="${PLUGIN_DIR}.zip"
           STAGING_DIR="${RUNNER_TEMP}/plugin-release"
 
           rm -rf "$STAGING_DIR"
@@ -41,6 +40,18 @@ jobs:
 
           cd "$STAGING_DIR"
           zip -r "$RUNNER_TEMP/$ZIP_NAME" "$PLUGIN_DIR"
+
+          # Ensure archive layout always matches WordPress expectations.
+          ZIP_CONTENTS="$(zipinfo -1 "$RUNNER_TEMP/$ZIP_NAME")"
+          if ! printf '%s\n' "$ZIP_CONTENTS" | grep -qx "${PLUGIN_DIR}/"; then
+            echo "Release zip is missing root directory ${PLUGIN_DIR}/"
+            exit 1
+          fi
+
+          if ! printf '%s\n' "$ZIP_CONTENTS" | grep -qx "${PLUGIN_DIR}/${PLUGIN_DIR}.php"; then
+            echo "Release zip is missing plugin bootstrap ${PLUGIN_DIR}/${PLUGIN_DIR}.php"
+            exit 1
+          fi
 
           echo "zip_path=$RUNNER_TEMP/$ZIP_NAME" >> "$GITHUB_OUTPUT"
           echo "zip_name=$ZIP_NAME" >> "$GITHUB_OUTPUT"

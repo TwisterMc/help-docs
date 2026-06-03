@@ -64,6 +64,7 @@ class Help_Docs {
         add_filter( 'pre_set_site_transient_update_plugins', array( self::class, 'inject_plugin_update' ) );
         add_filter( 'plugins_api', array( self::class, 'plugin_information' ), 10, 3 );
         add_filter( 'plugin_row_meta', array( self::class, 'plugin_row_meta' ), 10, 2 );
+        add_filter( 'upgrader_source_selection', array( self::class, 'preserve_plugin_dirname_during_update' ), 10, 4 );
         
         // Use transition_post_status for reliable cache invalidation
         add_action( 'transition_post_status', array( self::class, 'invalidate_post_cache_on_transition' ), 10, 3 );
@@ -169,6 +170,43 @@ class Help_Docs {
     }
 
     /**
+     * Keep update package folder aligned with the currently installed plugin directory.
+     */
+    public static function preserve_plugin_dirname_during_update( string $source, string $remote_source, $upgrader, array $hook_extra ): string {
+        if ( empty( $hook_extra['plugin'] ) || plugin_basename( HELP_DOCS_FILE ) !== $hook_extra['plugin'] ) {
+            return $source;
+        }
+
+        $expected_dirname = dirname( plugin_basename( HELP_DOCS_FILE ) );
+        $source_dirname   = basename( untrailingslashit( $source ) );
+
+        if ( $expected_dirname === $source_dirname || '.' === $expected_dirname ) {
+            return $source;
+        }
+
+        $target = trailingslashit( dirname( untrailingslashit( $source ) ) ) . $expected_dirname;
+
+        if ( is_dir( $target ) ) {
+            return $source;
+        }
+
+        global $wp_filesystem;
+
+        if ( $wp_filesystem instanceof WP_Filesystem_Base ) {
+            if ( $wp_filesystem->move( $source, $target, true ) ) {
+                return $target;
+            }
+            return $source;
+        }
+
+        if ( @rename( $source, $target ) ) {
+            return $target;
+        }
+
+        return $source;
+    }
+
+    /**
      * Fetch and cache latest release metadata from GitHub.
      */
     private static function get_latest_release_data(): ?array {
@@ -229,7 +267,7 @@ class Help_Docs {
             return '';
         }
 
-        $fallback = '';
+        $expected_name = strtolower( self::GITHUB_REPO . '.zip' );
 
         foreach ( $payload['assets'] as $asset ) {
             if ( ! is_array( $asset ) || empty( $asset['browser_download_url'] ) ) {
@@ -243,16 +281,12 @@ class Help_Docs {
                 continue;
             }
 
-            if ( str_starts_with( strtolower( $name ), strtolower( self::GITHUB_REPO . '-' ) ) ) {
+            if ( strtolower( $name ) === $expected_name ) {
                 return esc_url_raw( $url );
-            }
-
-            if ( '' === $fallback ) {
-                $fallback = esc_url_raw( $url );
             }
         }
 
-        return $fallback;
+        return '';
     }
 
     /**
