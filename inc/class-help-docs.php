@@ -63,6 +63,7 @@ class Help_Docs {
         add_action( 'init', array( self::class, 'maybe_add_rest_auth' ), 20 );
         add_filter( 'pre_set_site_transient_update_plugins', array( self::class, 'inject_plugin_update' ) );
         add_filter( 'plugins_api', array( self::class, 'plugin_information' ), 10, 3 );
+        add_filter( 'plugin_row_meta', array( self::class, 'plugin_row_meta' ), 10, 2 );
         
         // Use transition_post_status for reliable cache invalidation
         add_action( 'transition_post_status', array( self::class, 'invalidate_post_cache_on_transition' ), 10, 3 );
@@ -142,6 +143,29 @@ class Help_Docs {
         );
 
         return $info;
+    }
+
+    /**
+     * Add plugin row meta links on the Plugins screen.
+     */
+    public static function plugin_row_meta( array $plugin_meta, string $plugin_file ): array {
+        if ( plugin_basename( HELP_DOCS_FILE ) !== $plugin_file ) {
+            return $plugin_meta;
+        }
+
+        $plugin_meta[] = sprintf(
+            '<a href="%1$s" target="_blank" rel="noopener noreferrer">%2$s</a>',
+            esc_url( 'https://github.com/' . self::GITHUB_OWNER . '/' . self::GITHUB_REPO ),
+            esc_html__( 'View details', 'help_docs' )
+        );
+
+        $plugin_meta[] = sprintf(
+            '<a href="%1$s" target="_blank" rel="noopener noreferrer">%2$s</a>',
+            esc_url( 'https://ko-fi.com/twistermc' ),
+            esc_html__( 'Donate', 'help_docs' )
+        );
+
+        return $plugin_meta;
     }
 
     /**
