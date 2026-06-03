@@ -46,6 +46,11 @@ For questions, issues, or feature requests, please reach out through GitHub.
 
 ### Release Notes
 
+**June 1, 2026**
+
+- Version 0.4
+- Security and performance updates
+
 **May 8, 2026**
 
 - Version 0.4
