@@ -18,6 +18,9 @@ class Help_Docs {
      * Capability required to access Help Docs screens.
      */
     private const HELP_DOCS_VIEW_CAP = 'edit_posts';
+    private const GITHUB_OWNER = 'TwisterMc';
+    private const GITHUB_REPO = 'help-docs';
+    private const UPDATE_CACHE_KEY = 'help_docs_github_release_data';
 
     /**
      * Determine whether the current user can view a Help Doc by status.
@@ -58,9 +61,174 @@ class Help_Docs {
         add_filter( 'wp_insert_post_data', array( self::class, 'force_private_status' ), 10, 2 );
         add_action( 'admin_enqueue_scripts', array( self::class, 'add_style' ) );
         add_action( 'init', array( self::class, 'maybe_add_rest_auth' ), 20 );
+        add_filter( 'pre_set_site_transient_update_plugins', array( self::class, 'inject_plugin_update' ) );
+        add_filter( 'plugins_api', array( self::class, 'plugin_information' ), 10, 3 );
         
         // Use transition_post_status for reliable cache invalidation
         add_action( 'transition_post_status', array( self::class, 'invalidate_post_cache_on_transition' ), 10, 3 );
+    }
+
+    /**
+     * Add update data to the standard WordPress plugin update transient.
+     */
+    public static function inject_plugin_update( $transient ) {
+        if ( ! is_object( $transient ) || empty( $transient->checked ) ) {
+            return $transient;
+        }
+
+        $plugin_basename = plugin_basename( HELP_DOCS_FILE );
+        $plugin_slug     = dirname( $plugin_basename );
+
+        if ( ! isset( $transient->checked[ $plugin_basename ] ) ) {
+            return $transient;
+        }
+
+        $release = self::get_latest_release_data();
+        if ( ! is_array( $release ) ) {
+            return $transient;
+        }
+
+        if ( version_compare( $release['version'], HELP_DOCS_VERSION, '>' ) ) {
+            $update              = new stdClass();
+            $update->slug        = $plugin_slug;
+            $update->plugin      = $plugin_basename;
+            $update->new_version = $release['version'];
+            $update->url         = $release['release_url'];
+            $update->package     = $release['package_url'];
+
+            $transient->response[ $plugin_basename ] = $update;
+        } else {
+            $no_update              = new stdClass();
+            $no_update->slug        = $plugin_slug;
+            $no_update->plugin      = $plugin_basename;
+            $no_update->new_version = HELP_DOCS_VERSION;
+            $no_update->url         = 'https://github.com/' . self::GITHUB_OWNER . '/' . self::GITHUB_REPO;
+            $no_update->package     = '';
+
+            $transient->no_update[ $plugin_basename ] = $no_update;
+        }
+
+        return $transient;
+    }
+
+    /**
+     * Provide plugin details for the native "View details" update modal.
+     */
+    public static function plugin_information( $result, string $action, $args ) {
+        if ( 'plugin_information' !== $action || ! is_object( $args ) || empty( $args->slug ) ) {
+            return $result;
+        }
+
+        $plugin_slug = dirname( plugin_basename( HELP_DOCS_FILE ) );
+        if ( $plugin_slug !== $args->slug ) {
+            return $result;
+        }
+
+        $release = self::get_latest_release_data();
+        if ( ! is_array( $release ) ) {
+            return $result;
+        }
+
+        $info                = new stdClass();
+        $info->name          = 'Help Docs';
+        $info->slug          = $plugin_slug;
+        $info->version       = $release['version'];
+        $info->author        = '<a href="https://www.twistermc.com">Thomas McMahon</a>';
+        $info->homepage      = 'https://github.com/' . self::GITHUB_OWNER . '/' . self::GITHUB_REPO;
+        $info->download_link = $release['package_url'];
+        $info->sections      = array(
+            'description' => __( 'Adds a custom post type that is visible only in the admin.', 'help_docs' ),
+            'changelog'   => ! empty( $release['body'] ) ? wp_kses_post( wpautop( $release['body'] ) ) : __( 'See GitHub releases for changelog details.', 'help_docs' ),
+        );
+
+        return $info;
+    }
+
+    /**
+     * Fetch and cache latest release metadata from GitHub.
+     */
+    private static function get_latest_release_data(): ?array {
+        $cached = get_site_transient( self::UPDATE_CACHE_KEY );
+        if ( is_array( $cached ) ) {
+            return $cached;
+        }
+
+        $release_endpoint = sprintf(
+            'https://api.github.com/repos/%s/%s/releases/latest',
+            rawurlencode( self::GITHUB_OWNER ),
+            rawurlencode( self::GITHUB_REPO )
+        );
+
+        $response = wp_remote_get(
+            $release_endpoint,
+            array(
+                'headers' => array(
+                    'Accept'     => 'application/vnd.github+json',
+                    'User-Agent' => 'WordPress/' . get_bloginfo( 'version' ) . '; ' . home_url(),
+                ),
+                'timeout' => 15,
+            )
+        );
+
+        if ( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
+            return null;
+        }
+
+        $payload = json_decode( wp_remote_retrieve_body( $response ), true );
+        if ( ! is_array( $payload ) || empty( $payload['tag_name'] ) ) {
+            return null;
+        }
+
+        $package_url = self::find_release_zip_url( $payload );
+        if ( empty( $package_url ) ) {
+            return null;
+        }
+
+        $data = array(
+            'tag_name'    => (string) $payload['tag_name'],
+            'version'     => ltrim( (string) $payload['tag_name'], "vV" ),
+            'release_url' => ! empty( $payload['html_url'] ) ? (string) $payload['html_url'] : 'https://github.com/' . self::GITHUB_OWNER . '/' . self::GITHUB_REPO,
+            'package_url' => $package_url,
+            'body'        => isset( $payload['body'] ) ? (string) $payload['body'] : '',
+        );
+
+        set_site_transient( self::UPDATE_CACHE_KEY, $data, 6 * HOUR_IN_SECONDS );
+
+        return $data;
+    }
+
+    /**
+     * Resolve the plugin package URL from release assets.
+     */
+    private static function find_release_zip_url( array $payload ): string {
+        if ( empty( $payload['assets'] ) || ! is_array( $payload['assets'] ) ) {
+            return '';
+        }
+
+        $fallback = '';
+
+        foreach ( $payload['assets'] as $asset ) {
+            if ( ! is_array( $asset ) || empty( $asset['browser_download_url'] ) ) {
+                continue;
+            }
+
+            $name = isset( $asset['name'] ) ? (string) $asset['name'] : '';
+            $url  = (string) $asset['browser_download_url'];
+
+            if ( '' === $name || ! str_ends_with( strtolower( $name ), '.zip' ) ) {
+                continue;
+            }
+
+            if ( str_starts_with( strtolower( $name ), strtolower( self::GITHUB_REPO . '-' ) ) ) {
+                return esc_url_raw( $url );
+            }
+
+            if ( '' === $fallback ) {
+                $fallback = esc_url_raw( $url );
+            }
+        }
+
+        return $fallback;
     }
 
     /**

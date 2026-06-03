@@ -5,7 +5,8 @@
  * Plugin Name: Help Docs
  * Description: Adds a custom post type that is visible only in the admin.
  * Author: Thomas McMahon
- * Version: 0.5
+ * Version: 0.6
+ * Update URI: https://github.com/TwisterMc/help-docs
  * Author URI: https://www.twistermc.com
  * Text Domain: help_docs
  * Requires PHP:      8.1
@@ -19,7 +20,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'HELP_DOCS_VERSION', '0.5' );
+define( 'HELP_DOCS_VERSION', '0.6' );
+define( 'HELP_DOCS_FILE', __FILE__ );
 define( 'HELP_DOCS_DIR', plugin_dir_path( __FILE__ ) );
 define( 'HELP_DOCS_URL', plugin_dir_url( __FILE__ ) );
 

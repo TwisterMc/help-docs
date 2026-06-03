@@ -31,7 +31,10 @@ Gutenberg (Block Editor) support can be enabled in the plugin settings. When ena
 
 ## Updates
 
-Currently, this plugin does not auto-update. Please check back periodically for new versions and improvements.
+This plugin now supports native WordPress update notices and updates from GitHub Releases.
+
+- When a new tagged release is published on GitHub, WordPress will show an update in the Plugins screen
+- Updating uses the standard WordPress update workflow (same UI and process as built-in plugin updates)
 
 ## Support
 
@@ -46,9 +49,15 @@ For questions, issues, or feature requests, please reach out through GitHub.
 
 ### Release Notes
 
+**June 3, 2026**
+
+- Version 0.6
+- Builds releases bsed on tag.
+- Update Functionality
+
 **June 1, 2026**
 
-- Version 0.4
+- Version 0.5
 - Security and performance updates
 
 **May 8, 2026**
