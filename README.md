@@ -51,7 +51,7 @@ For questions, issues, or feature requests, please reach out through GitHub.
 
 **June 3, 2026**
 
-- Version 0.6.2
+- Version 0.6.2 / 0.6.3
 - Fixing the zip file naming so it doesn't break WordPress
 
 - Version 0.6.1
